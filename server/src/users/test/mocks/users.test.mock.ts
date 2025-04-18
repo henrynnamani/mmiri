@@ -1,18 +1,20 @@
 const mockUsersModelAction = {
   create: jest.fn(),
+  get: jest.fn(),
 };
 
 const mockUserRequest = {
   email: 'test@example.com',
-  password: 'password',
+  password: 'Pyr@hornet0101',
+  phoneNumber: '2345678901',
 };
 
-const mockUserResponse = {
+const mockUser = {
   id: '9hdfks-d34hdfsd-dkfjs',
   email: 'test@gmail.com',
-  phone: '555-555-5555',
+  phoneNumber: '555-555-5555',
   createdAt: new Date(),
   updatedAt: new Date(),
 };
 
-export { mockUsersModelAction, mockUserRequest, mockUserResponse };
+export { mockUsersModelAction, mockUserRequest, mockUser };

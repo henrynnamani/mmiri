@@ -11,6 +11,7 @@ export class UsersService {
 
     if (userExist) {
       throw new BadRequestException('User already exists');
+      return;
     }
 
     const user = await this.usersModelAction.create({

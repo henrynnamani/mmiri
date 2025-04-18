@@ -19,7 +19,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "migration:create": "npx typeorm migration:create database/migrations/",
-    "migration:generate": "npx typeorm migration:generate database/migrations/ -d dist/database/datasource.js",
+    "migration:generate": "npx typeorm migration:generate -d database/datasource.ts database/migrations/migration",
     "migration:run": "npx typeorm migration:run -d dist/database/datasource.js",
     "migration:revert": "npx typeorm migration:revert -d dist/database/datasource.js"
   },
@@ -74,6 +74,9 @@
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/$1"
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"

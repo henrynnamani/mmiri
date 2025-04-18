@@ -1,8 +1,8 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './users.model';
 import { Repository } from 'typeorm';
-import { AbstractModelAction } from 'src/common/base-model.action';
 import { Injectable } from '@nestjs/common';
+import { AbstractModelAction } from '@/common/base-model.action';
 
 @Injectable()
 export class UsersModelAction extends AbstractModelAction<User> {

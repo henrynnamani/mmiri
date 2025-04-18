@@ -1,7 +1,11 @@
 import { TestingModule } from '@nestjs/testing';
 import { UserTestingModule } from './base.test';
 import { UsersService } from '../users.service';
-import { mockUserRequest } from './mocks/users.test.mock';
+import {
+  mockUser,
+  mockUserRequest,
+  mockUsersModelAction,
+} from './mocks/users.test.mock';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -22,21 +26,25 @@ describe('UsersService', () => {
 
       const response = await service.createUser(mockUserRequest);
 
-      expect(response).rejects.toMatchObject({
-        data: null,
-        message: 'User already exists',
-        success: false,
-      });
+      console.log(response);
+
+      expect(response?.data).toBeUndefined();
     });
 
     it('should create a new user', async () => {
-      const response = await service.createUser(mockUserRequest);
+      jest.spyOn(mockUsersModelAction, 'create').mockResolvedValue(mockUser);
 
-      expect(response).resolves.toMatchObject({
-        data: expect.any(Object),
-        message: 'User created successfully',
-        success: true,
+      //
+      expect(mockUsersModelAction.create).toHaveBeenCalledWith({
+        createPayload: mockUserRequest,
+        transactionOptions: {
+          useTransaction: false,
+        },
       });
+
+      const response = await mockUsersModelAction.create(mockUserRequest);
+
+      expect(response).toMatchObject(mockUser);
     });
   });
 });

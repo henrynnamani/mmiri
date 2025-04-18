@@ -1,4 +1,4 @@
-import { IsEmail, IsString, IsStrongPassword } from 'class-validator';
+import { IsEmail, IsString, IsStrongPassword, Matches } from 'class-validator';
 
 export class UserDto {
   @IsString()
@@ -13,4 +13,10 @@ export class UserDto {
     minSymbols: 1,
   })
   password: string;
+
+  @IsString()
+  @Matches(/^\d{10}$/, {
+    message: 'Phone number must be a Nigeria number',
+  })
+  phoneNumber: string;
 }
