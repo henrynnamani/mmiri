@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UserDto } from './dto/users.dto';
 import { UsersModelAction } from './model/users.model-action';
 
@@ -7,6 +7,12 @@ export class UsersService {
   constructor(private readonly usersModelAction: UsersModelAction) {}
 
   async createUser(createUserDto: UserDto) {
+    const userExist = await this.getUserByEmail(createUserDto.email);
+
+    if (userExist) {
+      throw new BadRequestException('User already exists');
+    }
+
     const user = await this.usersModelAction.create({
       createPayload: createUserDto,
       transactionOptions: {
@@ -20,6 +26,12 @@ export class UsersService {
   getUserById(id: string) {
     return this.usersModelAction.get({
       getRecordIdentifierOption: { id },
+    });
+  }
+
+  getUserByEmail(email: string) {
+    return this.usersModelAction.get({
+      getRecordIdentifierOption: { email },
     });
   }
 }
