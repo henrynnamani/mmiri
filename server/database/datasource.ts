@@ -8,8 +8,8 @@ const dataSource = new DataSource({
   password: 'pyr@hornet0101',
   database: 'mmiri',
   // synchronize: true,
-  entities: ['dist/**/*.entity.js'],
-  migrations: ['dist/database/migrations/*.js'],
+  entities: ['dist/src/**/*.model.{ts,js}'],
+  migrations: ['dist/database/migrations/*.{ts,js}'],
 });
 
 export default dataSource;

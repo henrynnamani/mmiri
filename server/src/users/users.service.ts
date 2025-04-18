@@ -1,11 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { UserDto } from './dto/users.dto';
+import { UsersModelAction } from './model/users.model-action';
 
 @Injectable()
 export class UsersService {
-  constructor() {}
+  constructor(private readonly usersModelAction: UsersModelAction) {}
 
-  createUser(createUserDto: UserDto) {
-    return { data: createUserDto };
+  async createUser(createUserDto: UserDto) {
+    const user = await this.usersModelAction.create({
+      createPayload: createUserDto,
+      transactionOptions: {
+        useTransaction: false,
+      },
+    });
+
+    return { data: user };
+  }
+
+  getUserById(id: string) {
+    return this.usersModelAction.get({
+      getRecordIdentifierOption: { id },
+    });
   }
 }
