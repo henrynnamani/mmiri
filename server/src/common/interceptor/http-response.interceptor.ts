@@ -10,6 +10,8 @@ import { map } from 'rxjs';
 @Injectable()
 export class HttpInterceptor implements NestInterceptor {
   private logger = new Logger(HttpInterceptor.name);
+  blackListed = ['password'];
+
   constructor() {}
 
   intercept(context: ExecutionContext, next: CallHandler<any>) {
@@ -35,10 +37,26 @@ export class HttpInterceptor implements NestInterceptor {
 
         return {
           success,
-          data: data_,
+          data: this.stripBlackListedProperty(data_),
           message,
         };
       }),
     );
+  }
+
+  stripBlackListedProperty(data: unknown) {
+    if (typeof data !== 'object' || data === null) return data;
+
+    const result = Array.isArray(data) ? [] : {};
+
+    for (const key in data) {
+      if (typeof data[key] === 'object' && !(data[key] instanceof Date)) {
+        result[key] = this.stripBlackListedProperty(data[key]);
+      } else if (!this.blackListed.includes(key)) {
+        result[key] = data[key];
+      }
+    }
+
+    return result;
   }
 }

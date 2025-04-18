@@ -7,7 +7,7 @@ import { HttpExceptionFiler } from './common/exception/error.exception-filter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.setGlobalPrefix('api/v1/');
+  app.setGlobalPrefix('api/v1');
 
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalInterceptors(new HttpInterceptor());

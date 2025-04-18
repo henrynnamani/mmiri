@@ -14,7 +14,23 @@ export class HttpExceptionFiler implements ExceptionFilter {
 
     const status = exception.getStatus();
 
-    const message = exception.message;
+    const exceptionResponse = exception.getResponse?.();
+    let message = 'Something went wrong';
+
+    if (typeof exceptionResponse === 'string') {
+      message = exceptionResponse;
+    } else if (
+      exceptionResponse &&
+      typeof exceptionResponse === 'object' &&
+      'message' in exceptionResponse
+    ) {
+      const responseMessage = (exceptionResponse as any).message;
+      message = Array.isArray(responseMessage)
+        ? responseMessage.join(', ')
+        : responseMessage;
+    } else if (exception?.message) {
+      message = exception.message;
+    }
 
     response.status(status).json({
       success: false,
