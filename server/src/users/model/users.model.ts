@@ -1,5 +1,6 @@
 import { BaseEntity } from '@/common/base-entity.model';
-import { Column, Entity } from 'typeorm';
+import { Lodge } from '@/locations/model/lodges.model';
+import { Column, Entity, OneToOne } from 'typeorm';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -11,4 +12,7 @@ export class User extends BaseEntity {
 
   @Column({ nullable: true })
   phoneNumber: string;
+
+  @OneToOne(() => Lodge)
+  lodge: Lodge;
 }

@@ -1,4 +1,15 @@
-import { IsEmail, IsString, IsStrongPassword, Matches } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsString,
+  IsStrongPassword,
+  Matches,
+} from 'class-validator';
+
+export enum RoleEnum {
+  USER = 'user',
+  VENDOR = 'vendor',
+}
 
 export class RegisterDto {
   @IsString()
@@ -19,6 +30,10 @@ export class RegisterDto {
     message: 'Phone number must be a valid Nigerian number starting with +234',
   })
   phoneNumber: string;
+
+  @IsString()
+  @IsEnum(RoleEnum)
+  role: RoleEnum;
 }
 
 export class LoginDto {

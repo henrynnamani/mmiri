@@ -17,7 +17,6 @@ export class HttpInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler<any>) {
     return next.handle().pipe(
       map((data) => {
-        // 👇 This formats the response correctly
         const now = Date.now();
         const request = context.switchToHttp().getRequest();
         const isError = data instanceof Error && data !== null;

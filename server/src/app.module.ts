@@ -9,6 +9,8 @@ import { dataSource } from 'database/datasource';
 import { AuthsModule } from './auths/auths.module';
 import { authConfig } from 'config/auth.config';
 import { JwtModule } from '@nestjs/jwt';
+import { VendorsModule } from './vendors/vendors.module';
+import { LocationsModule } from './locations/locations.module';
 
 @Module({
   imports: [
@@ -42,6 +44,8 @@ import { JwtModule } from '@nestjs/jwt';
     UsersModule,
     CommonModule,
     AuthsModule,
+    VendorsModule,
+    LocationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
