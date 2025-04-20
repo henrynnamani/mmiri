@@ -1,6 +1,6 @@
 import { VendorsService } from '@/vendors/vendors.service';
 import { RegisterStrategy } from './register-interface.strategy';
-import { RegisterDto } from '../dto/auths.dto';
+import { RegisterDto } from '../../dto/auths.dto';
 import { Vendor } from '@/vendors/model/vendors.model';
 import { Injectable } from '@nestjs/common';
 

@@ -49,4 +49,8 @@ export class LoginDto {
     minSymbols: 1,
   })
   password: string;
+
+  @IsString()
+  @IsEnum(RoleEnum)
+  role: RoleEnum;
 }

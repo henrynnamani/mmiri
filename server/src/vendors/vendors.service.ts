@@ -1,9 +1,14 @@
-import { RegisterDto } from '@/auths/dto/auths.dto';
-import { Injectable } from '@nestjs/common';
+import { LoginDto, RegisterDto } from '@/auths/dto/auths.dto';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Vendor } from './model/vendors.model';
 import { VendorModelAction } from './model/vendors.model-action';
 import * as SYS_MSG from '@/common/system-message';
-import { hashPassword } from '@/common/utils/auth';
+import { hashPassword, verifyPassword } from '@/common/utils/auth';
 
 @Injectable()
 export class VendorsService {
@@ -13,7 +18,7 @@ export class VendorsService {
     const vendorExist = await this.getVendorByEmail(registerDto.email);
 
     if (vendorExist) {
-      throw new Error(SYS_MSG.VENDOR_ALREADY_EXIST);
+      throw new BadRequestException(SYS_MSG.VENDOR_ALREADY_EXIST);
     }
 
     const hashedPassword = await hashPassword(registerDto.password);
@@ -35,14 +40,29 @@ export class VendorsService {
     });
 
     if (!createdVendor) {
-      throw new Error(SYS_MSG.VENDOR_NOT_CREATED);
+      throw new InternalServerErrorException(SYS_MSG.VENDOR_NOT_CREATED);
     }
 
     return createdVendor;
   }
 
-  verifyVendor() {
-    // Implementation to verify vendor
+  async verifyVendor(loginDto: LoginDto): Promise<Vendor> {
+    const vendorExist = await this.getVendorByEmail(loginDto.email);
+
+    if (!vendorExist) {
+      throw new NotFoundException(SYS_MSG.VENDOR_NOT_FOUND);
+    }
+
+    const isPasswordValid = await verifyPassword(
+      loginDto.password,
+      vendorExist.password,
+    );
+
+    if (!isPasswordValid) {
+      throw new BadRequestException(SYS_MSG.INVALID_VENDOR_CREDENTIALS);
+    }
+
+    return vendorExist;
   }
 
   getVendorByEmail(email: string) {

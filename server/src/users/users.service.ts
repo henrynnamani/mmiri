@@ -5,17 +5,15 @@ import {
 } from '@nestjs/common';
 import { UsersModelAction } from './model/users.model-action';
 import * as SYS_MSG from '@/common/system-message';
-import { plainToInstance } from 'class-transformer';
-import { RegisterDto } from '@/auths/dto/auths.dto';
-import { validateOrReject } from 'class-validator';
-import { UserDto } from './dto/users.dto';
-import { hashPassword } from '@/common/utils/auth';
+import { hashPassword, verifyPassword } from '@/common/utils/auth';
+import { LoginDto, RegisterDto } from '@/auths/dto/auths.dto';
+import { User } from './model/users.model';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly usersModelAction: UsersModelAction) {}
 
-  async registerUser(createUserDto: UserDto) {
+  async registerUser(createUserDto: RegisterDto) {
     const userExist = await this.getUserByEmail(createUserDto.email);
 
     if (userExist) {
@@ -45,21 +43,23 @@ export class UsersService {
     return createdUser;
   }
 
-  verifyUser() {}
+  async verifyUser(loginDto: LoginDto): Promise<User> {
+    const userExist = await this.getUserByEmail(loginDto.email);
 
-  async createUser(createUserDto: UserDto) {
-    const instance = plainToInstance(RegisterDto, createUserDto);
+    if (!userExist) {
+      throw new BadRequestException(SYS_MSG.USER_NOT_FOUND);
+    }
 
-    await validateOrReject(instance);
+    const isPasswordValid = await verifyPassword(
+      loginDto.password,
+      userExist.password,
+    );
 
-    const user = await this.usersModelAction.create({
-      createPayload: createUserDto,
-      transactionOptions: {
-        useTransaction: false,
-      },
-    });
+    if (!isPasswordValid) {
+      throw new BadRequestException(SYS_MSG.INVALID_CREDENTIALS);
+    }
 
-    return { data: user };
+    return userExist;
   }
 
   getUserById(id: string) {
