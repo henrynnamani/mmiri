@@ -9,6 +9,7 @@ import { VendorRegistryStrategy } from './strategy/register/vendor-registry.stra
 import { LoginStrategyFactory } from './strategy/login/login-strategy.factory';
 import { UserLoginStrategy } from './strategy/login/user-login.strategy';
 import { VendorLoginStrategy } from './strategy/login/vendor-login.strategy';
+import { TokenService } from '@/common/token.service';
 
 @Module({
   imports: [UsersModule, VendorsModule],
@@ -21,6 +22,7 @@ import { VendorLoginStrategy } from './strategy/login/vendor-login.strategy';
     LoginStrategyFactory,
     UserLoginStrategy,
     VendorLoginStrategy,
+    TokenService,
   ],
 })
 export class AuthsModule {}

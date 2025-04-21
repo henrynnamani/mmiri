@@ -9,3 +9,7 @@ export const VENDOR_NOT_FOUND = 'Vendor not found';
 export const INVALID_VENDOR_DETAIL = 'Invalid vendor detail';
 export const VENDOR_NOT_CREATED = 'Vendor not created';
 export const INVALID_VENDOR_CREDENTIALS = 'Invalid vendor credentials';
+
+export const TOKEN_NOT_PROVIDED = 'Token not provided';
+export const TOKEN_EXPIRED = 'Token expired';
+export const TOKEN_INVALID = 'Token is invalid';

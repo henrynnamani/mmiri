@@ -11,6 +11,9 @@ import { authConfig } from 'config/auth.config';
 import { JwtModule } from '@nestjs/jwt';
 import { VendorsModule } from './vendors/vendors.module';
 import { LocationsModule } from './locations/locations.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthenticationGuard } from './auths/guards/authentication.guard';
+import { TokenService } from './common/token.service';
 
 @Module({
   imports: [
@@ -48,6 +51,13 @@ import { LocationsModule } from './locations/locations.module';
     LocationsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    TokenService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthenticationGuard,
+    },
+  ],
 })
 export class AppModule {}
