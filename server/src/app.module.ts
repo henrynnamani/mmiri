@@ -14,6 +14,8 @@ import { LocationsModule } from './locations/locations.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthenticationGuard } from './auths/guards/authentication.guard';
 import { TokenService } from './common/token.service';
+import { LodgesModule } from './lodges/lodges.module';
+import { UniversitiesModule } from './universities/universities.module';
 
 @Module({
   imports: [
@@ -49,6 +51,8 @@ import { TokenService } from './common/token.service';
     AuthsModule,
     VendorsModule,
     LocationsModule,
+    LodgesModule,
+    UniversitiesModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,5 +1,5 @@
 import { BaseEntity } from '@/common/base-entity.model';
-import { Lodge } from '@/locations/model/lodges.model';
+import { Lodge } from '@/lodges/model/lodges.model';
 import { Column, Entity, OneToOne } from 'typeorm';
 
 @Entity('users')

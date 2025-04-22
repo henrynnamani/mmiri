@@ -13,3 +13,6 @@ export const INVALID_VENDOR_CREDENTIALS = 'Invalid vendor credentials';
 export const TOKEN_NOT_PROVIDED = 'Token not provided';
 export const TOKEN_EXPIRED = 'Token expired';
 export const TOKEN_INVALID = 'Token is invalid';
+
+export const UNIVERSITY_ALREADY_EXIST = 'University already exist';
+export const UNIVERSITY_CREATED = 'University created successfully';

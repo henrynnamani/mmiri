@@ -77,9 +77,18 @@ export class VendorsService {
     });
   }
 
-  getVendorsByLocation() {}
+  getAllVendors() {
+    return this.vendorModelAction.list({
+      pagination: {
+        page: 1,
+        limit: 10,
+      },
+    });
+  }
 
-  getVendorsByLodge() {}
+  getVendorsByLocation(id: string) {}
+
+  getVendorsByLodge(id: string) {}
 
   changeAvailabilityStatus() {}
 }

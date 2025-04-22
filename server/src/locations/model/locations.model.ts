@@ -1,7 +1,7 @@
 import { BaseEntity } from '@/common/base-entity.model';
+import { Lodge } from '@/lodges/model/lodges.model';
+import { University } from '@/universities/model/universities.model';
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-import { Lodge } from './lodges.model';
-import { University } from './university.model';
 
 @Entity('locations')
 export class Location extends BaseEntity {

@@ -1,6 +1,8 @@
 import { DeepPartial, EntityTarget, ObjectLiteral, Repository } from 'typeorm';
 import { GetRecord } from './types/get-record.type';
 import { CreateRecordGenericType } from './types/create-record-generic.type';
+import { ListRecordOption, PaginationMeta } from './types/list-record.type';
+import { computePaginationMeta } from './helpers/pagination';
 
 export class AbstractModelAction<T extends ObjectLiteral> {
   model: EntityTarget<T>;
@@ -31,5 +33,27 @@ export class AbstractModelAction<T extends ObjectLiteral> {
       ...queryOptions,
       relations,
     });
+  }
+
+  async list(
+    listRecordOptions: ListRecordOption<object>,
+  ): Promise<{ payload: T[]; paginationMeta: Partial<PaginationMeta> }> {
+    const { pagination, queryOption, relations } = listRecordOptions;
+
+    const { limit, page } = pagination;
+
+    const query = await this.repository.find({
+      where: queryOption,
+      relations,
+      take: +limit,
+      skip: +limit * (+page - 1),
+    });
+
+    const total = await this.repository.count({ where: queryOption });
+
+    return {
+      payload: query,
+      paginationMeta: computePaginationMeta(total, +limit, +page),
+    };
   }
 }
