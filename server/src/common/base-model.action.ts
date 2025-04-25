@@ -1,8 +1,16 @@
-import { DeepPartial, EntityTarget, ObjectLiteral, Repository } from 'typeorm';
+import {
+  DeepPartial,
+  EntityTarget,
+  FindOptionsWhere,
+  ObjectLiteral,
+  Repository,
+} from 'typeorm';
 import { GetRecord } from './types/get-record.type';
 import { CreateRecordGenericType } from './types/create-record-generic.type';
 import { ListRecordOption, PaginationMeta } from './types/list-record.type';
 import { computePaginationMeta } from './helpers/pagination';
+import { UpdateRecordGenerics } from './types/update-record.type';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 export class AbstractModelAction<T extends ObjectLiteral> {
   model: EntityTarget<T>;
@@ -33,6 +41,24 @@ export class AbstractModelAction<T extends ObjectLiteral> {
       ...queryOptions,
       relations,
     });
+  }
+
+  async update(
+    updateRecordOption: UpdateRecordGenerics<
+      QueryDeepPartialEntity<T>,
+      FindOptionsWhere<T>
+    >,
+  ) {
+    const { updatePayload, identifierOptions, transactionOption } =
+      updateRecordOption;
+
+    const repository = transactionOption.useTransaction
+      ? transactionOption.transaction.getRepository(this.model)
+      : this.repository;
+
+    const response = await repository.update(identifierOptions, updatePayload);
+
+    return response;
   }
 
   async list(

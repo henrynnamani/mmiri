@@ -1,4 +1,4 @@
 export class LodgeDto {
-  name: string;
+  lodges: string[];
   locationId: string;
 }

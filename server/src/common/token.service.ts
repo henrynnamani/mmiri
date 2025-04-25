@@ -36,4 +36,10 @@ export class TokenService {
 
     return new Date() > tokenExpiry;
   }
+
+  appendPayloadToRequest(token: string, request) {
+    const decoded = this.jwtService.decode(token);
+
+    request.user = decoded;
+  }
 }

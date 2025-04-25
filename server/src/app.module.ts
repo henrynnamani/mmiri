@@ -7,7 +7,6 @@ import { UsersModule } from './users/users.module';
 import { CommonModule } from './common/common.module';
 import { dataSource } from 'database/datasource';
 import { AuthsModule } from './auths/auths.module';
-import { authConfig } from 'config/auth.config';
 import { JwtModule } from '@nestjs/jwt';
 import { VendorsModule } from './vendors/vendors.module';
 import { LocationsModule } from './locations/locations.module';
@@ -16,6 +15,12 @@ import { AuthenticationGuard } from './auths/guards/authentication.guard';
 import { TokenService } from './common/token.service';
 import { LodgesModule } from './lodges/lodges.module';
 import { UniversitiesModule } from './universities/universities.module';
+import { authConfig } from 'config/auth.config';
+import { LodgePriceModule } from './lodge_price/lodge_price.module';
+import { OrderModule } from './order/order.module';
+import { VendorLocationsModule } from './vendor_locations/vendor_locations.module';
+import { PaymentModule } from './payment/payment.module';
+import { paymentConfig } from 'config/payment.config';
 
 @Module({
   imports: [
@@ -31,7 +36,7 @@ import { UniversitiesModule } from './universities/universities.module';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [authConfig],
+      load: [authConfig, paymentConfig],
       cache: true,
     }),
     TypeOrmModule.forRootAsync({
@@ -53,6 +58,10 @@ import { UniversitiesModule } from './universities/universities.module';
     LocationsModule,
     LodgesModule,
     UniversitiesModule,
+    LodgePriceModule,
+    OrderModule,
+    VendorLocationsModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [

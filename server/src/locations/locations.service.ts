@@ -3,6 +3,7 @@ import { LocationDto } from './dto/location.dto';
 import { LocationModelAction } from './model/locations.model-action';
 import { UniversitiesService } from '@/universities/universities.service';
 import { dataSource } from 'database/datasource';
+import * as SYS_MSG from '@/common/system-message';
 
 @Injectable()
 export class LocationsService {
@@ -12,7 +13,6 @@ export class LocationsService {
   ) {}
 
   async createLocation(locationDto: LocationDto) {
-    let createLocation;
     const university = await this.universitiesService.findUniversityById(
       locationDto.universityId,
     );
@@ -21,8 +21,8 @@ export class LocationsService {
       throw new NotFoundException('University not found');
     }
 
-    await dataSource.transaction(async (manager) => {
-      createLocation = locationDto.locations.map((location) =>
+    const locations = await dataSource.transaction(async (manager) => {
+      const locationPromises = locationDto.locations.map((location) =>
         this.locationModelAction.create({
           createPayload: {
             name: location,
@@ -34,13 +34,43 @@ export class LocationsService {
           },
         }),
       );
+
+      return await Promise.all(locationPromises);
     });
 
-    const createdLocations = await Promise.all(createLocation);
+    return {
+      data: locations,
+      message: 'Locations created successfully',
+    };
+  }
+
+  async findLocationById(id: string) {
+    return this.locationModelAction.get({
+      getRecordIdentifierOption: { id },
+    });
+  }
+
+  async getLocationLodges(id: string) {
+    return this.locationModelAction.get({
+      getRecordIdentifierOption: { id },
+      relations: ['lodges'],
+    });
+  }
+
+  async getLocationVendors(id: string) {
+    const locationExists = await this.findLocationById(id);
+
+    if (!locationExists) {
+      throw new NotFoundException(SYS_MSG.LOCATION_NOT_FOUND);
+    }
+
+    const response = await this.locationModelAction.get({
+      getRecordIdentifierOption: { id },
+      relations: ['vendors', 'vendors.vendor'],
+    });
 
     return {
-      data: createdLocations,
-      message: 'Locations created successfully',
+      data: response,
     };
   }
 }

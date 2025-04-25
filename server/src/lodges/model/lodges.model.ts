@@ -1,7 +1,7 @@
 import { BaseEntity } from '@/common/base-entity.model';
-import { Column, Entity, ManyToMany, ManyToOne } from 'typeorm';
-import { Vendor } from '@/vendors/model/vendors.model';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { Location } from '@/locations/model/locations.model';
+import { LodgePrice } from '@/lodge_price/model/lodge_price.model';
 
 @Entity('lodges')
 export class Lodge extends BaseEntity {
@@ -11,6 +11,6 @@ export class Lodge extends BaseEntity {
   @ManyToOne(() => Location, (location) => location.lodges)
   location: Location;
 
-  @ManyToMany(() => Vendor, (vendor) => vendor.lodges)
-  vendors: Vendor[];
+  @OneToMany(() => LodgePrice, (lodge_price) => lodge_price.vendor)
+  vendors: LodgePrice[];
 }

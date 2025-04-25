@@ -22,7 +22,7 @@ export class HttpInterceptor implements NestInterceptor {
         const isError = data instanceof Error && data !== null;
         const success = !isError;
 
-        const message = data && data?.message ? data?.mesage : 'successful';
+        const message = data && data?.message ? data?.message : 'successful';
 
         const data_ = success && data?.data ? data?.data : data;
 
@@ -37,7 +37,7 @@ export class HttpInterceptor implements NestInterceptor {
         return {
           success,
           data: this.stripBlackListedProperty(data_),
-          message,
+          message: message,
         };
       }),
     );

@@ -1,4 +1,10 @@
-import { IsEmail, IsString, IsStrongPassword, Matches } from 'class-validator';
+import {
+  IsEmail,
+  IsString,
+  IsStrongPassword,
+  IsUUID,
+  Matches,
+} from 'class-validator';
 
 export class UserDto {
   @IsString()
@@ -19,4 +25,8 @@ export class UserDto {
     message: 'Phone number must be a valid Nigerian number starting with +234',
   })
   phoneNumber: string;
+
+  @IsString()
+  @IsUUID('all')
+  lodgeId: string;
 }

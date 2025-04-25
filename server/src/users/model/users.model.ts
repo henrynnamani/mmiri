@@ -1,6 +1,7 @@
 import { BaseEntity } from '@/common/base-entity.model';
 import { Lodge } from '@/lodges/model/lodges.model';
-import { Column, Entity, OneToOne } from 'typeorm';
+import { Order } from '@/order/model/order.model';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -13,6 +14,13 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   phoneNumber: string;
 
-  @OneToOne(() => Lodge)
+  @OneToOne(() => Lodge, (lodge) => lodge.id)
+  @JoinColumn({ name: 'lodge_id' })
   lodge: Lodge;
+
+  @Column({ name: 'lodge_id', nullable: true })
+  lodgeId: string;
+
+  @OneToMany(() => Order, (order) => order.user)
+  orders: Order[];
 }

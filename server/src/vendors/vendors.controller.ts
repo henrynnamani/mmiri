@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { VendorsService } from './vendors.service';
 
 @Controller('vendors')
@@ -10,13 +10,16 @@ export class VendorsController {
     return this.vendorsService.getAllVendors();
   }
 
-  @Get(':id')
-  getVendorsByLocation(@Param('id') id: string) {
-    return this.vendorsService.getVendorsByLocation(id);
+  @Patch(':id')
+  changeAvailabilityStatus(@Param('id') vendorId: string) {
+    return this.vendorsService.changeAvailabilityStatus(vendorId);
   }
 
-  @Get(':id')
-  getVendorsByLodge(@Param('id') id: string) {
-    return this.vendorsService.getVendorsByLodge(id);
+  @Post(':id/locations/:locationId')
+  addServingLocations(
+    @Param('id') vendorId: string,
+    @Param('locationId') locationId: string,
+  ) {
+    return this.vendorsService.addServingLocation(vendorId, locationId);
   }
 }

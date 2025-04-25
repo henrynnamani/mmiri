@@ -47,6 +47,8 @@ export class AuthenticationGuard implements CanActivate {
       throw new UnauthorizedException(SYS_MSG.TOKEN_INVALID);
     }
 
+    this.tokenService.appendPayloadToRequest(token, request);
+
     return true;
   }
 }

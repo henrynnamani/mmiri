@@ -9,10 +9,16 @@ import { Vendor } from './model/vendors.model';
 import { VendorModelAction } from './model/vendors.model-action';
 import * as SYS_MSG from '@/common/system-message';
 import { hashPassword, verifyPassword } from '@/common/utils/auth';
+import { LocationsService } from '@/locations/locations.service';
+import { VendorLocationsService } from '@/vendor_locations/vendor_locations.service';
 
 @Injectable()
 export class VendorsService {
-  constructor(private vendorModelAction: VendorModelAction) {}
+  constructor(
+    private vendorModelAction: VendorModelAction,
+    private locationsService: LocationsService,
+    private vendorLocationService: VendorLocationsService,
+  ) {}
 
   async registerVendor(registerDto: RegisterDto): Promise<Vendor> {
     const vendorExist = await this.getVendorByEmail(registerDto.email);
@@ -83,12 +89,64 @@ export class VendorsService {
         page: 1,
         limit: 10,
       },
+      queryOption: {
+        available: true,
+      },
     });
   }
 
-  getVendorsByLocation(id: string) {}
+  async changeAvailabilityStatus(vendorId: string) {
+    const vendorExist = await this.getVendorById(vendorId);
 
-  getVendorsByLodge(id: string) {}
+    if (!vendorExist) {
+      throw new NotFoundException(SYS_MSG.VENDOR_NOT_FOUND);
+    }
 
-  changeAvailabilityStatus() {}
+    const payload = {
+      available: !vendorExist.available,
+    };
+
+    await this.vendorModelAction.update({
+      identifierOptions: { id: vendorId },
+      updatePayload: payload,
+      transactionOption: {
+        useTransaction: false,
+      },
+    });
+
+    const updatedVendor = await this.getVendorById(vendorId);
+
+    return {
+      data: updatedVendor,
+      message: SYS_MSG.VENDOR_AVAILABILITY_UPDATED,
+    };
+  }
+
+  async addServingLocation(vendorId: string, locationId: string) {
+    const vendorExist = await this.getVendorById(vendorId);
+
+    if (!vendorExist) {
+      throw new NotFoundException(SYS_MSG.VENDOR_NOT_FOUND);
+    }
+
+    const locationExist =
+      await this.locationsService.findLocationById(locationId);
+
+    if (!locationExist) {
+      throw new NotFoundException(SYS_MSG.LOCATION_NOT_FOUND);
+    }
+
+    const response = await this.vendorLocationService.addServingLocation(
+      vendorExist,
+      locationExist,
+    );
+
+    if (!response) {
+      throw new InternalServerErrorException(SYS_MSG.default);
+    }
+
+    return {
+      message: SYS_MSG.VENDOR_SERVING_LOCATION_UPDATED,
+    };
+  }
 }
