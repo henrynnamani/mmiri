@@ -30,5 +30,6 @@ import { LodgePrice } from '@/lodge_price/model/lodge_price.model';
     LodgePriceService,
     LodgePriceModelAction,
   ],
+  exports: [OrderService, OrderModelAction],
 })
 export class OrderModule {}

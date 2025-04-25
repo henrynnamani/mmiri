@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { LoginDto, RegisterDto } from './dto/auths.dto';
-import { JwtService } from '@nestjs/jwt';
 import { RegisterStrategyFactory } from './strategy/register/register-strategy.factory';
 import { LoginStrategyFactory } from './strategy/login/login-strategy.factory';
 import { TokenService } from '@/common/token.service';
@@ -8,7 +7,6 @@ import { TokenService } from '@/common/token.service';
 @Injectable()
 export class AuthsService {
   constructor(
-    private jwtService: JwtService,
     private readonly tokenService: TokenService,
     private readonly registerStrategyFactory: RegisterStrategyFactory,
     private readonly loginStrategyFactory: LoginStrategyFactory,

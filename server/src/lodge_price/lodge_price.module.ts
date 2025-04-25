@@ -15,5 +15,6 @@ import { LodgePrice } from './model/lodge_price.model';
   ],
   controllers: [LodgePriceController],
   providers: [LodgePriceService, LodgePriceModelAction],
+  exports: [LodgePriceService, LodgePriceModelAction],
 })
 export class LodgePriceModule {}

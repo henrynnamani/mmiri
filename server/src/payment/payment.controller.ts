@@ -1,43 +1,50 @@
-import { Body, Controller, Headers, Post, Res } from '@nestjs/common';
+import { Body, Controller, Headers, Post, Req, Res } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { InitializePaymentDto } from './dto/initializePayment.dto';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
+import { skipAuth } from '@/common/decorators/is-public.decorator';
 
 @Controller('payment')
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
   @Post('initiate-payment')
-  initiatePayment(@Body() paymentDto: InitializePaymentDto) {
-    return this.paymentService.initiatePayment(paymentDto);
+  initiatePayment(@Body() paymentDto: InitializePaymentDto, @Req() req) {
+    const loggedInUser = req.user.sub;
+
+    return this.paymentService.initiatePayment(loggedInUser, paymentDto);
   }
 }
 
+@skipAuth()
 @Controller('webhook')
 export class PaystackController {
   constructor(private config: ConfigService) {}
   @Post()
   handleWebhook(
     @Headers('x-paystack-signature') signature: string,
-    @Body() body: any,
+    @Body() rawBody: Buffer,
+    @Req() req,
     @Res() res,
   ) {
     const secret = this.config.get<string>('paystack.secretKey');
     const hash = crypto
       .createHmac('sha512', secret!)
-      .update(JSON.stringify(body))
+      .update(JSON.stringify(req.body))
       .digest('hex');
 
-    if (hash === signature) {
-      // ✅ Valid webhook
-      if (body.event === 'charge.success') {
-        const paymentData = body.data;
+    console.log(secret);
+    if (hash == req.headers['x-paystack-signature']) {
+      // Retrieve the request's body
+      const event = req.body;
+      console.log(event);
+      if (event === 'charge.success') {
+        const paymentData = req.body.data;
         // Handle successful payment
         console.log(paymentData);
       }
     }
-
-    return res.sendStatus(200);
+    res.send(200);
   }
 }

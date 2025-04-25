@@ -1,4 +1,10 @@
-import { IsEmail, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class InitializePaymentDto {
   @IsNumber()
@@ -8,9 +14,15 @@ export class InitializePaymentDto {
   @IsEmail()
   @IsString()
   email: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  noOfGallons: number;
+
+  @IsString()
+  @IsUUID()
+  vendorId: string;
 }
 
 // steps
 // - create payment record ->
-//
-// - order record
