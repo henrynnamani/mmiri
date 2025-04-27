@@ -1,6 +1,8 @@
 import { LoginDto, RegisterDto } from '@/auths/dto/auths.dto';
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -11,6 +13,9 @@ import * as SYS_MSG from '@/common/system-message';
 import { hashPassword, verifyPassword } from '@/common/utils/auth';
 import { LocationsService } from '@/locations/locations.service';
 import { VendorLocationsService } from '@/vendor_locations/vendor_locations.service';
+import { ConfigService } from '@nestjs/config';
+import { SERVICE_CHARGE } from '@/common/constants';
+import axios from 'axios';
 
 @Injectable()
 export class VendorsService {
@@ -18,6 +23,7 @@ export class VendorsService {
     private vendorModelAction: VendorModelAction,
     private locationsService: LocationsService,
     private vendorLocationService: VendorLocationsService,
+    private config: ConfigService,
   ) {}
 
   async registerVendor(registerDto: RegisterDto): Promise<Vendor> {
@@ -29,8 +35,15 @@ export class VendorsService {
 
     const hashedPassword = await hashPassword(registerDto.password);
 
+    const subAccountCode = await this.createSubaccount(
+      registerDto.businessName,
+      registerDto.bankCode,
+      registerDto.accountNumber,
+    );
+
     const payload = {
       ...registerDto,
+      subaccount: subAccountCode?.data?.data?.subaccount_code,
       password: hashedPassword,
     };
 
@@ -148,5 +161,31 @@ export class VendorsService {
     return {
       message: SYS_MSG.VENDOR_SERVING_LOCATION_UPDATED,
     };
+  }
+
+  async createSubaccount(
+    businessName: string,
+    bankCode: string,
+    accountNumber: string,
+  ) {
+    const url = `${this.config.get<string>('paystack.baseUrl')}/subaccount`;
+
+    const payload = {
+      business_name: businessName,
+      bank_code: bankCode,
+      account_number: accountNumber,
+      percentage_charge: SERVICE_CHARGE,
+    };
+
+    const headers = {
+      Authorization: `Bearer ${this.config.get<string>('paystack.secretKey')}`,
+      'Content-Type': 'application/json',
+    };
+
+    const response = await axios.post(`${url}`, payload, {
+      headers,
+    });
+
+    return response;
   }
 }

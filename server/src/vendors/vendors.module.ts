@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { VendorsService } from './vendors.service';
 import { VendorsController } from './vendors.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -21,6 +21,6 @@ import { VendorLocation } from '@/vendor_locations/model/vendor_locations.model'
     VendorLocationsService,
     VendorLocationModelAction,
   ],
-  exports: [VendorsService, VendorModelAction],
+  exports: [VendorsService, VendorModelAction, VendorLocationsService],
 })
 export class VendorsModule {}

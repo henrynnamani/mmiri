@@ -6,12 +6,18 @@ import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 @Entity('lodge_price')
 export class LodgePrice extends BaseEntity {
   @ManyToOne(() => Vendor, (vendor) => vendor.lodges)
-  @JoinColumn()
+  @JoinColumn({ name: 'vendorId' })
   vendor: Vendor;
 
+  @Column()
+  vendorId: string;
+
   @ManyToOne(() => Lodge, (lodge) => lodge.vendors)
-  @JoinColumn()
+  @JoinColumn({ name: 'lodgeId' })
   lodge: Lodge;
+
+  @Column()
+  lodgeId: string;
 
   @Column({ nullable: false })
   price: number;

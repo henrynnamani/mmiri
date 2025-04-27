@@ -4,6 +4,7 @@ import { InitializePaymentDto } from './dto/initializePayment.dto';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import { skipAuth } from '@/common/decorators/is-public.decorator';
+import { OrderService } from '@/order/order.service';
 
 @Controller('payment')
 export class PaymentController {
@@ -20,9 +21,12 @@ export class PaymentController {
 @skipAuth()
 @Controller('webhook')
 export class PaystackController {
-  constructor(private config: ConfigService) {}
+  constructor(
+    private config: ConfigService,
+    private orderService: OrderService,
+  ) {}
   @Post()
-  handleWebhook(
+  async handleWebhook(
     @Headers('x-paystack-signature') signature: string,
     @Body() rawBody: Buffer,
     @Req() req,
@@ -34,15 +38,10 @@ export class PaystackController {
       .update(JSON.stringify(req.body))
       .digest('hex');
 
-    console.log(secret);
     if (hash == req.headers['x-paystack-signature']) {
-      // Retrieve the request's body
-      const event = req.body;
-      console.log(event);
-      if (event === 'charge.success') {
-        const paymentData = req.body.data;
-        // Handle successful payment
-        console.log(paymentData);
+      const body = req.body;
+      if (body.event === 'charge.success') {
+        await this.orderService.updateOrderStatus(body?.data?.reference, true);
       }
     }
     res.send(200);

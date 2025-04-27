@@ -5,14 +5,13 @@ import * as SYS_MSG from '@/common/system-message';
 import { OrderModelAction } from './model/order.model-action';
 import { UsersService } from '@/users/users.service';
 import { LodgePriceService } from '@/lodge_price/lodge_price.service';
-import { SERVICE_CHARGE } from '@/common/constants';
 
 @Injectable()
 export class OrderService {
   constructor(
-    private vendorsService: VendorsService,
     private orderModelAction: OrderModelAction,
     private usersService: UsersService,
+    private vendorsService: VendorsService,
     private lodgePriceService: LodgePriceService,
   ) {}
 
@@ -31,22 +30,13 @@ export class OrderService {
       throw new NotFoundException(SYS_MSG.USER_NOT_FOUND);
     }
 
-    const price = await this.lodgePriceService.getLodgePrice(
-      orderDto.vendorId,
-      userExist.lodgeId,
-    );
-
-    const totalPayment = this.computeOrderTotal(
-      price!.price,
-      orderDto.noOfGallons,
-    );
-
     const order = await this.orderModelAction.create({
       createPayload: {
-        amountPayed: totalPayment,
+        amountPayed: orderDto.totalAmount,
         noOfGallons: orderDto.noOfGallons,
         vendor: vendorExist,
         user: userExist,
+        paymentReference: orderDto.paymentReference,
       },
       transactionOptions: {
         useTransaction: false,
@@ -59,7 +49,33 @@ export class OrderService {
     };
   }
 
-  private computeOrderTotal(charge: number, noOfGallon: number) {
-    return charge * noOfGallon + SERVICE_CHARGE;
+  async getOrderByReference(reference: string) {
+    return this.orderModelAction.get({
+      getRecordIdentifierOption: { paymentReference: reference },
+    });
+  }
+
+  //issue - update by payment reference
+  async updateOrderStatus(reference: string, status: boolean) {
+    const orderExist = await this.getOrderByReference(reference);
+
+    if (!orderExist) {
+      throw new NotFoundException(SYS_MSG.ORDER_NOT_FOUND);
+    }
+
+    const updatedOrder = await this.orderModelAction.update({
+      identifierOptions: { id: orderExist.id },
+      updatePayload: {
+        paymentStatus: status,
+      },
+      transactionOption: {
+        useTransaction: false,
+      },
+    });
+
+    return {
+      data: updatedOrder,
+      message: SYS_MSG.ORDER_STATUS_UPDATED_SUCCESSFULLY,
+    };
   }
 }

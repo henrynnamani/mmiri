@@ -27,4 +27,7 @@ export class Order extends BaseEntity {
 
   @Column({ default: false })
   paymentStatus: boolean;
+
+  @Column({ nullable: true })
+  paymentReference: string;
 }

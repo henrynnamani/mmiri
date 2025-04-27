@@ -8,8 +8,8 @@ import * as SYS_MSG from '@/common/system-message';
 @Injectable()
 export class LodgePriceService {
   constructor(
-    private vendorsService: VendorsService,
     private lodgesService: LodgesService,
+    private readonly vendorsService: VendorsService,
     private lodgePriceModelAction: LodgePriceModelAction,
   ) {}
 
@@ -48,12 +48,19 @@ export class LodgePriceService {
   }
 
   async getLodgePrice(vendorId: string, lodgeId: string) {
-    return this.lodgePriceModelAction.get({
+    const response = await this.lodgePriceModelAction.get({
       getRecordIdentifierOption: {
         vendorId,
         lodgeId,
       },
+      relations: ['vendor'],
     });
+
+    if (!response) {
+      throw new NotFoundException(SYS_MSG.VENDOR_LODGE_RECORD_NOT_FOUND);
+    }
+
+    return response;
   }
 
   async updateLodgeCharge(loggedInUser: string, id: string, price: number) {
@@ -77,8 +84,6 @@ export class LodgePriceService {
         useTransaction: false,
       },
     });
-
-    console.log(response);
 
     return {
       data: response,

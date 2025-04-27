@@ -1,6 +1,8 @@
 import {
   IsEmail,
   IsEnum,
+  IsNumber,
+  IsOptional,
   IsString,
   IsStrongPassword,
   Matches,
@@ -24,6 +26,18 @@ export class RegisterDto {
     minSymbols: 1,
   })
   password: string;
+
+  @IsOptional()
+  @IsString()
+  businessName: string;
+
+  @IsString()
+  @IsOptional()
+  bankCode: string;
+
+  @IsOptional()
+  @IsString()
+  accountNumber: string;
 
   @IsString()
   @Matches(/^\+234\d{10}$/, {

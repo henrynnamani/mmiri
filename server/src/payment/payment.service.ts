@@ -11,6 +11,8 @@ import { SERVICE_CHARGE } from '@/common/constants';
 @Injectable()
 export class PaymentService {
   paystackBaseUrl: string | undefined;
+  paystackSecretKey: string | undefined;
+
   constructor(
     private readonly config: ConfigService,
     private readonly orderService: OrderService,
@@ -18,6 +20,7 @@ export class PaymentService {
     private readonly usersService: UsersService,
   ) {
     this.paystackBaseUrl = this.config.get<string>('paystack.baseUrl');
+    this.paystackSecretKey = this.config.get<string>('paystack.secretKey');
   }
 
   async initiatePayment(
@@ -36,10 +39,16 @@ export class PaymentService {
         user.lodgeId,
       );
 
+      console.log(lodgeCharge);
+
       const paymentPayload = {
-        email: paymentDto.email,
-        amount:
-          (lodgeCharge!.price * paymentDto.noOfGallons + SERVICE_CHARGE) * 100,
+        email: user.email,
+        amount: this.computePaymentAmount(
+          lodgeCharge.price,
+          paymentDto.noOfGallons,
+        ),
+        subaccount: lodgeCharge.vendor.subaccount,
+        transaction_charge: SERVICE_CHARGE * 100,
       };
 
       const response = await axios.post(
@@ -47,7 +56,7 @@ export class PaymentService {
         paymentPayload,
         {
           headers: {
-            Authorization: `Bearer ${this.config.get<string>('paystack.secretKey')}`,
+            Authorization: `Bearer ${this.paystackSecretKey}`,
             'Content-Type': 'application/json',
           },
         },
@@ -57,16 +66,25 @@ export class PaymentService {
         userId: loggedInUser,
         vendorId: paymentDto.vendorId,
         noOfGallons: paymentDto.noOfGallons,
+        totalAmount: paymentPayload.amount / 100,
+        paymentReference: response.data.data.reference,
       };
 
       await this.orderService.placeOrder(orderPayload);
 
       return response.data;
-    } catch {
+    } catch (err) {
+      console.log(err);
       throw new HttpException(
         SYS_MSG.ERROR_INITIATING_PAYMENT_TRANSACTION,
         HttpStatus.BAD_REQUEST,
       );
     }
   }
+
+  computePaymentAmount(lodgeCharge: number, noOfGallons: number) {
+    return (lodgeCharge * noOfGallons + SERVICE_CHARGE) * 100;
+  }
 }
+
+// it is well

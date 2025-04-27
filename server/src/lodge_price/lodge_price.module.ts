@@ -6,12 +6,16 @@ import { LodgesModule } from '@/lodges/lodges.module';
 import { LodgePriceModelAction } from './model/lodge_price.model-action';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LodgePrice } from './model/lodge_price.model';
+import { LocationsModule } from '@/locations/locations.module';
+import { UniversitiesModule } from '@/universities/universities.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([LodgePrice]),
-    VendorsModule,
     LodgesModule,
+    VendorsModule,
+    LocationsModule,
+    UniversitiesModule,
   ],
   controllers: [LodgePriceController],
   providers: [LodgePriceService, LodgePriceModelAction],

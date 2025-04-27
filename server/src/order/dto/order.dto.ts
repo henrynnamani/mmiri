@@ -12,4 +12,12 @@ export class OrderDto {
   @IsNumber()
   @IsNotEmpty()
   noOfGallons: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  totalAmount: number;
+
+  @IsString()
+  @IsNotEmpty()
+  paymentReference: string;
 }

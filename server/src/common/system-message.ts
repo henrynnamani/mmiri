@@ -29,6 +29,9 @@ export const VENDOR_LODGE_RECORD_NOT_FOUND =
   'Vendor has no charge for this lodge';
 
 export const ORDER_PLACED_SUCCESSFULLY = 'Order placed successfully';
+export const ORDER_NOT_FOUND = 'No such order';
+export const ORDER_STATUS_UPDATED_SUCCESSFULLY =
+  'Order status updated successfully';
 
 export const LOCATION_NOT_FOUND = 'Location Not Found';
 

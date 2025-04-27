@@ -18,6 +18,21 @@ export class Vendor extends BaseEntity {
   @Column({ default: true })
   available: boolean;
 
+  @Column({ nullable: true })
+  businessName: string;
+
+  @Column({ nullable: true })
+  bankCode: string;
+
+  @Column({ nullable: true })
+  accountNumber: string;
+
+  @Column({ nullable: true })
+  subaccount: string;
+
+  @Column({ default: false })
+  isActive: boolean;
+
   @OneToMany(() => VendorLocation, (vendorLocation) => vendorLocation.location)
   locations: VendorLocation[];
 
