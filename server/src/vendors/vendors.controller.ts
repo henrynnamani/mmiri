@@ -1,6 +1,11 @@
-import { Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import { Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { VendorsService } from './vendors.service';
+import { Roles } from '@/common/decorators/role.decorator';
+import { Role } from '@/common/enums';
+import { VendorGuard } from '@/auths/guards/vendor.guard';
 
+@Roles(Role.VENDOR)
+@UseGuards(VendorGuard)
 @Controller('vendors')
 export class VendorsController {
   constructor(private readonly vendorsService: VendorsService) {}

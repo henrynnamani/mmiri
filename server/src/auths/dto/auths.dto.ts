@@ -1,17 +1,12 @@
+import { Role } from '@/common/enums';
 import {
   IsEmail,
   IsEnum,
-  IsNumber,
   IsOptional,
   IsString,
   IsStrongPassword,
   Matches,
 } from 'class-validator';
-
-export enum RoleEnum {
-  USER = 'user',
-  VENDOR = 'vendor',
-}
 
 export class RegisterDto {
   @IsString()
@@ -39,15 +34,15 @@ export class RegisterDto {
   @IsString()
   accountNumber: string;
 
+  @IsEnum(Role, { message: 'Role must be one of: user, vendor, admin' })
+  @IsString()
+  role: Role;
+
   @IsString()
   @Matches(/^\+234\d{10}$/, {
     message: 'Phone number must be a valid Nigerian number starting with +234',
   })
   phoneNumber: string;
-
-  @IsString()
-  @IsEnum(RoleEnum)
-  role: RoleEnum;
 }
 
 export class LoginDto {
@@ -64,7 +59,7 @@ export class LoginDto {
   })
   password: string;
 
+  @IsEnum(Role, { message: 'Role must be one of: user, vendor, admin' })
   @IsString()
-  @IsEnum(RoleEnum)
-  role: RoleEnum;
+  role: string;
 }

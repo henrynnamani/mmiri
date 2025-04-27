@@ -1,8 +1,6 @@
 import { LoginDto, RegisterDto } from '@/auths/dto/auths.dto';
 import {
   BadRequestException,
-  forwardRef,
-  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -155,7 +153,9 @@ export class VendorsService {
     );
 
     if (!response) {
-      throw new InternalServerErrorException(SYS_MSG.default);
+      throw new InternalServerErrorException(
+        SYS_MSG.VENDOR_FAILED_LOCATION_UPDATE,
+      );
     }
 
     return {

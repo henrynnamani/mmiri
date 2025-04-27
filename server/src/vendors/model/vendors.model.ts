@@ -1,4 +1,5 @@
 import { BaseEntity } from '@/common/base-entity.model';
+import { Role } from '@/common/enums';
 import { LodgePrice } from '@/lodge_price/model/lodge_price.model';
 import { Order } from '@/order/model/order.model';
 import { VendorLocation } from '@/vendor_locations/model/vendor_locations.model';
@@ -32,6 +33,9 @@ export class Vendor extends BaseEntity {
 
   @Column({ default: false })
   isActive: boolean;
+
+  @Column({ type: 'enum', enum: Role, default: Role.VENDOR })
+  role: Role;
 
   @OneToMany(() => VendorLocation, (vendorLocation) => vendorLocation.location)
   locations: VendorLocation[];

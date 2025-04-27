@@ -3,6 +3,7 @@ export const USER_NOT_FOUND = 'User not found';
 export const INVALID_USER_DETAIL = 'Invalid user detail';
 export const USER_NOT_CREATED = 'User not created';
 export const INVALID_CREDENTIALS = 'Invalid credentials';
+export const USER_NOT_AUTHORIZED = 'User not authorized';
 
 export const VENDOR_AVAILABILITY_UPDATED =
   'Successfully update user availability';
@@ -13,7 +14,8 @@ export const VENDOR_NOT_CREATED = 'Vendor not created';
 export const INVALID_VENDOR_CREDENTIALS = 'Invalid vendor credentials';
 export const VENDOR_SERVING_LOCATION_UPDATED =
   'Vendor serving location updated';
-export default 'Error encountered adding vendor location';
+export const VENDOR_NOT_ACTIVE = 'Vendor is not active';
+export const VENDOR_FAILED_LOCATION_UPDATE = 'Vendor location update failed';
 
 export const TOKEN_NOT_PROVIDED = 'Token not provided';
 export const TOKEN_EXPIRED = 'Token expired';
