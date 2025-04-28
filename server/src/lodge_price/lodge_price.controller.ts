@@ -12,6 +12,10 @@ import { LodgePriceDto, UpdateChargeDto } from './dto/lodge_price.dto';
 import { Roles } from '@/common/decorators/role.decorator';
 import { Role } from '@/common/enums';
 import { VendorGuard } from '@/auths/guards/vendor.guard';
+import {
+  CreateLodgePriceDoc,
+  UpdateLodgePriceDoc,
+} from './docs/lodge_price.doc';
 
 @Controller('prices')
 export class LodgePriceController {
@@ -20,11 +24,13 @@ export class LodgePriceController {
   @Roles(Role.VENDOR)
   @UseGuards(VendorGuard)
   @Post('')
+  @CreateLodgePriceDoc()
   setLodgeCharge(@Body() lodgePriceDto: LodgePriceDto) {
     return this.lodgePriceService.setLodgeCharge(lodgePriceDto);
   }
 
   @Patch(':id')
+  @UpdateLodgePriceDoc()
   updateLodgeCharge(
     @Body() updateChargeDto: UpdateChargeDto,
     @Param('id') id: string,

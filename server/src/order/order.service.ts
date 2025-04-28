@@ -5,6 +5,8 @@ import * as SYS_MSG from '@/common/system-message';
 import { OrderModelAction } from './model/order.model-action';
 import { UsersService } from '@/users/users.service';
 import { LodgePriceService } from '@/lodge_price/lodge_price.service';
+import { PaginationMeta } from '@/common/types/list-record.type';
+import { OrderStatus } from '@/common/enums';
 
 @Injectable()
 export class OrderService {
@@ -55,7 +57,6 @@ export class OrderService {
     });
   }
 
-  //issue - update by payment reference
   async updateOrderStatus(reference: string, status: boolean) {
     const orderExist = await this.getOrderByReference(reference);
 
@@ -77,5 +78,25 @@ export class OrderService {
       data: updatedOrder,
       message: SYS_MSG.ORDER_STATUS_UPDATED_SUCCESSFULLY,
     };
+  }
+
+  async getUserOrders(
+    id: string,
+    pagination: Pick<PaginationMeta, 'page' | 'limit'>,
+  ) {
+    return this.orderModelAction.list({
+      queryOption: { userId: id, status: OrderStatus.PENDING },
+      pagination,
+    });
+  }
+
+  async getVendorOrders(
+    id: string,
+    pagination: Pick<PaginationMeta, 'page' | 'limit'>,
+  ) {
+    return this.orderModelAction.list({
+      queryOption: { vendorId: id, status: OrderStatus.PENDING },
+      pagination,
+    });
   }
 }
