@@ -20,7 +20,7 @@ export class LodgesService {
     );
 
     if (!location) {
-      throw new NotFoundException('University not found');
+      throw new NotFoundException(SYS_MSG.LOCATION_NOT_FOUND);
     }
 
     const lodges = await dataSource.transaction(async (manager) => {
@@ -42,7 +42,7 @@ export class LodgesService {
 
     return {
       data: lodges,
-      message: 'Locations created successfully',
+      message: SYS_MSG.LODGE_CREATED_SUCCESSFULLY,
     };
   }
 
@@ -59,16 +59,21 @@ export class LodgesService {
     });
   }
 
-  async getLodgeVendors(id: string) {
+  async getLodgeVendors(id: string, page: number, limit: number) {
     const lodgeExist = await this.getLodgeById(id);
 
     if (!lodgeExist) {
       throw new NotFoundException(SYS_MSG.LODGE_NOT_FOUND);
     }
 
-    const response = await this.lodgePriceModelAction.get({
-      getRecordIdentifierOption: { id },
-      relations: ['vendors', 'vendors.vendor'],
+    const response = await this.lodgePriceModelAction.list({
+      queryOption: { lodgeId: id },
+      relations: ['vendor'],
+      pagination: {
+        // make dynamic
+        page,
+        limit,
+      },
     });
 
     return {
