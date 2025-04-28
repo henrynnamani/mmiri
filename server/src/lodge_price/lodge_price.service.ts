@@ -77,7 +77,7 @@ export class LodgePriceService {
       price,
     };
 
-    const response = await this.lodgePriceModelAction.update({
+    await this.lodgePriceModelAction.update({
       identifierOptions: { id },
       updatePayload: payload,
       transactionOption: {
@@ -85,8 +85,13 @@ export class LodgePriceService {
       },
     });
 
+    const updatedLodgePrice = await this.lodgePriceModelAction.get({
+      getRecordIdentifierOption: { id },
+    });
+
     return {
-      data: response,
+      data: updatedLodgePrice,
+      message: SYS_MSG.PRICE_UPDATED_SUCCESSFULLY,
     };
   }
 }

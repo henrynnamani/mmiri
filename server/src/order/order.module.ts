@@ -1,6 +1,5 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { OrderController } from './order.controller';
 import { OrderModelAction } from './model/order.model-action';
 import { UsersService } from '@/users/users.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -21,7 +20,6 @@ import { LodgePrice } from '@/lodge_price/model/lodge_price.model';
     LocationsModule,
     forwardRef(() => VendorsModule),
   ],
-  controllers: [OrderController],
   providers: [
     OrderService,
     OrderModelAction,

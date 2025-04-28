@@ -43,3 +43,5 @@ export const LOCATION_CREATED_SUCCESSFULLY = 'Location created successfully';
 
 export const ERROR_INITIATING_PAYMENT_TRANSACTION =
   'Error initiating payment transaction';
+
+export const PRICE_UPDATED_SUCCESSFULLY = 'Price updated successfully';
