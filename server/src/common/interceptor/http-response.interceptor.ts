@@ -24,6 +24,8 @@ export class HttpInterceptor implements NestInterceptor {
 
         const message = data && data?.message ? data?.message : 'successful';
 
+        delete data.message;
+
         const data_ = success && data?.data ? data?.data : data;
 
         this.logger.log(

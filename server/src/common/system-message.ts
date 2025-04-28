@@ -4,6 +4,7 @@ export const INVALID_USER_DETAIL = 'Invalid user detail';
 export const USER_NOT_CREATED = 'User not created';
 export const INVALID_CREDENTIALS = 'Invalid credentials';
 export const USER_NOT_AUTHORIZED = 'User not authorized';
+export const REGISTRATION_SUCCESSFUL = 'Registration successful';
 
 export const VENDOR_AVAILABILITY_UPDATED =
   'Successfully update user availability';
@@ -36,6 +37,7 @@ export const ORDER_STATUS_UPDATED_SUCCESSFULLY =
   'Order status updated successfully';
 
 export const LOCATION_NOT_FOUND = 'Location Not Found';
+export const LOCATION_CREATED_SUCCESSFULLY = 'Location created successfully';
 
 export const ERROR_INITIATING_PAYMENT_TRANSACTION =
   'Error initiating payment transaction';
