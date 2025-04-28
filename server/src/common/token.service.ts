@@ -32,6 +32,10 @@ export class TokenService {
   isTokenExpired(token: string) {
     const decoded = this.jwtService.decode(token);
 
+    if (!decoded) {
+      throw new UnauthorizedException(SYS_MSG.TOKEN_INVALID);
+    }
+
     const tokenExpiry = new Date(decoded.exp * 1000);
 
     return new Date() > tokenExpiry;

@@ -5,12 +5,14 @@ import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import { skipAuth } from '@/common/decorators/is-public.decorator';
 import { OrderService } from '@/order/order.service';
+import { InitiatePaymentDoc } from './docs/payment.doc';
 
 @Controller('payment')
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
   @Post('initiate-payment')
+  @InitiatePaymentDoc()
   initiatePayment(@Body() paymentDto: InitializePaymentDto, @Req() req) {
     const loggedInUser = req.user.sub;
 

@@ -62,7 +62,7 @@ export class AbstractModelAction<T extends ObjectLiteral> {
   }
 
   async list(
-    listRecordOptions: ListRecordOption<object>,
+    listRecordOptions: ListRecordOption<FindOptionsWhere<T>>,
   ): Promise<{ payload: T[]; paginationMeta: Partial<PaginationMeta> }> {
     const { pagination, queryOption, relations } = listRecordOptions;
 

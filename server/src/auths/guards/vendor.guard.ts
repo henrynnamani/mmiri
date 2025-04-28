@@ -17,10 +17,10 @@ export class VendorGuard implements CanActivate {
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const acceptedRoles = this.reflector.get<string[]>(
-      'roles',
+    const acceptedRoles = this.reflector.getAllAndOverride<string[]>('roles', [
       context.getHandler(),
-    );
+      context.getClass(),
+    ]);
 
     const id = request.user.sub;
     const user = await this.vendorsService.getVendorById(id);

@@ -1,4 +1,5 @@
 import { BaseEntity } from '@/common/base-entity.model';
+import { OrderStatus } from '@/common/enums';
 import { User } from '@/users/model/users.model';
 import { Vendor } from '@/vendors/model/vendors.model';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
@@ -24,6 +25,9 @@ export class Order extends BaseEntity {
 
   @Column()
   amountPayed: number;
+
+  @Column({ enum: OrderStatus, default: OrderStatus.PENDING })
+  status: OrderStatus;
 
   @Column({ default: false })
   paymentStatus: boolean;

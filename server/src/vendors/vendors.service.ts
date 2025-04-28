@@ -160,6 +160,7 @@ export class VendorsService {
 
     return {
       message: SYS_MSG.VENDOR_SERVING_LOCATION_UPDATED,
+      data: response,
     };
   }
 
