@@ -1,3 +1,5 @@
+// import { FindOptionsWhere } from 'typeorm';
+
 export interface PaginationMeta {
   page: number;
   limit: number;
@@ -8,6 +10,7 @@ export interface PaginationMeta {
 }
 
 export interface ListRecordOption<recordOption> {
+  // listIdentifierOption?: FindOptionsWhere<recordOption>;
   queryOption?: recordOption;
   pagination: Pick<PaginationMeta, 'limit' | 'page'>;
   relations?: string[];

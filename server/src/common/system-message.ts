@@ -24,8 +24,10 @@ export const TOKEN_INVALID = 'Token is invalid';
 
 export const UNIVERSITY_ALREADY_EXIST = 'University already exist';
 export const UNIVERSITY_CREATED = 'University created successfully';
+export const UNIVERSITY_CREATION_FAILED = 'University creation failed';
 
 export const LODGE_NOT_FOUND = 'Lodge does not exist';
+export const LODGE_CREATED_SUCCESSFULLY = 'Lodge created successfully';
 
 export const PRICE_SET_SUCCESSFULLY = 'Price successfully set';
 export const VENDOR_LODGE_RECORD_NOT_FOUND =

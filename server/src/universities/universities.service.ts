@@ -22,6 +22,10 @@ export class UniversitiesService {
       },
     });
 
+    if (!createdUniversity) {
+      throw new BadRequestException(SYS_MSG.UNIVERSITY_CREATION_FAILED);
+    }
+
     return { data: createdUniversity, message: SYS_MSG.UNIVERSITY_CREATED };
   }
 
