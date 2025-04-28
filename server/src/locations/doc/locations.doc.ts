@@ -58,7 +58,7 @@ export const GetLocationVendorDoc = () => {
     ApiParam({ name: 'id', required: true, description: 'Location ID' }),
     ApiResponse({
       status: 200,
-      description: 'List of location lodges',
+      description: 'List of location vendors',
       type: GetLocationVendorSuccessDto,
     }),
   );

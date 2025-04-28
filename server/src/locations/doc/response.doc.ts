@@ -1,4 +1,4 @@
-import { ApiBody, ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import * as SYS_MSG from '@/common/system-message';
 
 export class LocationSuccessDto {
