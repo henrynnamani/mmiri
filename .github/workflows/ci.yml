@@ -28,8 +28,10 @@ jobs:
 
       - name: Build the app
         run: |
+          cd server
           yarn build
 
       - name: Run tests
         run: |
-          yarn test -- --runInBand
+          cd server
+          yarn test
