@@ -3,10 +3,10 @@ name: Mmiri CI
 on:
   push:
     paths:
-      - 'server/**'
+      - "server/**"
   pull_request:
     paths:
-      - 'server/**'
+      - "server/**"
 
 jobs:
   build-and-test:
@@ -19,13 +19,19 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 22
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          cd server
+          yarn
 
       - name: Build the app
-        run: npm run build
+        run: |
+          cd server
+          yarn build
 
       - name: Run tests
-        run: npm run test -- --runInBand
+        run: |
+          cd server
+          yarn test
