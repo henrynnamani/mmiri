@@ -13,7 +13,7 @@ import { User } from './model/users.model';
 export class UsersService {
   constructor(private readonly usersModelAction: UsersModelAction) {}
 
-  async registerUser(createUserDto: RegisterDto) {
+  async registerUser(createUserDto: Pick<RegisterDto, 'email' | 'password'>) {
     const userExist = await this.getUserByEmail(createUserDto.email);
 
     if (userExist) {

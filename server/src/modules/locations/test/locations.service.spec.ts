@@ -6,9 +6,14 @@ import {
   testingModule,
 } from './base';
 import { NotFoundException } from '@nestjs/common';
-import { mockCreatedLocations, mockLocationData } from './mock.test';
+import { mockLocationData } from './mock.test';
 import { dataSource } from '@database/datasource';
-import { EntityManager } from 'typeorm';
+
+jest.mock('@database/datasource', () => ({
+  dataSource: {
+    transaction: jest.fn(),
+  },
+}));
 
 describe('LocationsService', () => {
   let service: LocationsService;
@@ -17,19 +22,6 @@ describe('LocationsService', () => {
     const module: TestingModule = await testingModule().compile();
 
     service = module.get<LocationsService>(LocationsService);
-  });
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-
-    jest
-      .spyOn(dataSource, 'transaction')
-      .mockImplementation(
-        async (runInTransaction: (manager: EntityManager) => Promise<any>) => {
-          // Simulate a transaction with a fake manager
-          return runInTransaction({} as EntityManager);
-        },
-      );
   });
 
   it('should be defined', () => {
@@ -47,28 +39,23 @@ describe('LocationsService', () => {
 
     it('should create locations if university exists', async () => {
       const mockUniversity = { id: 'univ-id' };
+
+      (dataSource.transaction as jest.Mock).mockImplementation((cb) => {
+        return cb('mockTransactionManager');
+      });
+
       jest
         .spyOn(mockUniversitiesService, 'findUniversityById')
         .mockResolvedValue(mockUniversity);
       jest.spyOn(mockLocationModelAction, 'create').mockImplementation();
 
-      jest
-        .spyOn(service, 'createLocation')
-        .mockResolvedValue(mockCreatedLocations);
-
-      jest
-        .spyOn(dataSource, 'transaction')
-        .mockImplementation(
-          async (cb: (manager: EntityManager) => Promise<any>) => {
-            return cb({} as EntityManager);
-          },
-        );
-
       const result = await service.createLocation(mockLocationData);
 
+      const spy = jest.spyOn(dataSource, 'transaction');
+
+      expect(spy).toHaveBeenCalledTimes(1);
       expect(result.data).toHaveLength(2);
       expect(result.message).toBe('Locations created successfully');
-      expect(mockLocationModelAction.create).toHaveBeenCalled();
     });
   });
 });

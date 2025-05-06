@@ -1,10 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { OrderDto } from './dto/order.dto';
 import { VendorsService } from '@modules/vendors/vendors.service';
 import * as SYS_MSG from '@modules/common/system-message';
 import { OrderModelAction } from './model/order.model-action';
 import { UsersService } from '@modules/users/users.service';
-import { LodgePriceService } from '@modules/lodge_price/lodge_price.service';
+// import { LodgePriceService } from '@modules/lodge_price/lodge_price.service';
 import { PaginationMeta } from '@modules/common/types/list-record.type';
 import { OrderStatus } from '@modules/common/enums';
 
@@ -14,7 +18,7 @@ export class OrderService {
     private orderModelAction: OrderModelAction,
     private usersService: UsersService,
     private vendorsService: VendorsService,
-    private lodgePriceService: LodgePriceService,
+    // private lodgePriceService: LodgePriceService,
   ) {}
 
   async placeOrder(orderDto: OrderDto) {
@@ -57,14 +61,14 @@ export class OrderService {
     });
   }
 
-  async updateOrderStatus(reference: string, status: boolean) {
+  async updateOrderStatus(reference: string, status: boolean = true) {
     const orderExist = await this.getOrderByReference(reference);
 
     if (!orderExist) {
       throw new NotFoundException(SYS_MSG.ORDER_NOT_FOUND);
     }
 
-    const updatedOrder = await this.orderModelAction.update({
+    await this.orderModelAction.update({
       identifierOptions: { id: orderExist.id },
       updatePayload: {
         paymentStatus: status,
@@ -73,6 +77,14 @@ export class OrderService {
         useTransaction: false,
       },
     });
+
+    const updatedOrder = await this.orderModelAction.get({
+      getRecordIdentifierOption: { id: orderExist.id },
+    });
+
+    if (updatedOrder?.paymentStatus !== status) {
+      throw new BadRequestException(SYS_MSG.ORDER_STATUS_NOT_UPDATED);
+    }
 
     return {
       data: updatedOrder,

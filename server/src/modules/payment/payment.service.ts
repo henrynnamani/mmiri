@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InitializePaymentDto } from './dto/initializePayment.dto';
 import { ConfigService } from '@nestjs/config';
 import * as SYS_MSG from '@modules/common/system-message';
@@ -31,15 +36,13 @@ export class PaymentService {
       const user = await this.usersService.getUserById(loggedInUser);
 
       if (!user) {
-        throw new HttpException(SYS_MSG.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        throw new NotFoundException(SYS_MSG.USER_NOT_FOUND);
       }
 
       const lodgeCharge = await this.lodgePriceService.getLodgePrice(
         paymentDto.vendorId,
         user.lodgeId,
       );
-
-      console.log(lodgeCharge);
 
       const paymentPayload = {
         email: user.email,
@@ -74,7 +77,6 @@ export class PaymentService {
 
       return response.data;
     } catch (err) {
-      console.log(err);
       throw new HttpException(
         SYS_MSG.ERROR_INITIATING_PAYMENT_TRANSACTION,
         HttpStatus.BAD_REQUEST,

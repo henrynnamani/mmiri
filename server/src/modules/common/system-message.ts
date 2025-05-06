@@ -37,6 +37,7 @@ export const ORDER_PLACED_SUCCESSFULLY = 'Order placed successfully';
 export const ORDER_NOT_FOUND = 'No such order';
 export const ORDER_STATUS_UPDATED_SUCCESSFULLY =
   'Order status updated successfully';
+export const ORDER_STATUS_NOT_UPDATED = 'Order status not updated';
 
 export const LOCATION_NOT_FOUND = 'Location Not Found';
 export const LOCATION_CREATED_SUCCESSFULLY = 'Location created successfully';
