@@ -1,10 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { HttpInterceptor } from './common/interceptor/http-response.interceptor';
-import { HttpExceptionFiler } from './common/exception/error.exception-filter';
 import * as bodyParser from 'body-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { HttpInterceptor } from './modules/common/interceptor/http-response.interceptor';
+import { HttpExceptionFiler } from './modules/common/exception/error.exception-filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,7 +22,12 @@ async function bootstrap() {
 
   const documentFactory = SwaggerModule.createDocument(app, config);
 
-  SwaggerModule.setup('api', app, documentFactory);
+  SwaggerModule.setup('api', app, documentFactory, {
+    swaggerOptions: {
+      tagsSorter: 'alpha',
+      operationsSorter: 'alpha',
+    },
+  });
 
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalInterceptors(new HttpInterceptor());

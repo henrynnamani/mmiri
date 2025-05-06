@@ -10,9 +10,11 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
-    "rootDir": "./",
     "paths": {
-      "@/*": ["./src/*"]
+      "@modules/*": ["src/modules/*"],
+      "@database/*": ["src/database/*"],
+      "@config/*": ["src/config/*"],
+      "@seeds/*": ["src/seeds/*"]
     },
     "incremental": true,
     "skipLibCheck": true,
