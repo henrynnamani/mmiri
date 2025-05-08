@@ -1,7 +1,7 @@
 import CustomButton from '@/components/CustomButton';
 import TextField from '@/components/TextField';
 import { places } from '@/constant/places';
-import { Stack, router } from 'expo-router';
+import { Stack } from 'expo-router';
 import { useState } from 'react';
 import { FlatList, View, Text, SafeAreaView, TouchableOpacity } from 'react-native';
 
@@ -21,6 +21,23 @@ export default function Home() {
                   <Text className="text-center font-lobster text-3xl font-semibold text-main">
                     Mmiri
                   </Text>
+                  {/* <TextField label="Search" /> */}
+                  {/* <FlatList
+                    data={places}
+                    contentContainerStyle={{ gap: 10 }}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    renderItem={({ item }) => (
+                      <TouchableOpacity onPress={() => setActiveIndex(item)}>
+                        <View
+                          className={`rounded-lg p-2 ${activeIndex === item ? 'bg-main border-main' : 'border border-gray-200'}`}>
+                          <Text className={`font-medium ${activeIndex === item && 'text-white'}`}>
+                            {item}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    )}
+                  /> */}
                 </View>
               </SafeAreaView>
             );
@@ -30,7 +47,7 @@ export default function Home() {
       {/* <FlatList /> */}
       <View className="flex w-full items-center justify-center gap-10 p-10">
         <Text className="text-lg font-medium">Do you need water?</Text>
-        <CustomButton label="Order Now" onPress={() => router.push('/(root)/order-process')} />
+        <CustomButton label="Order Now" onPress={() => {}} />
       </View>
     </View>
   );

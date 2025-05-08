@@ -13,7 +13,7 @@ const Signup = () => {
         </View>
         <TextField label="Email" />
         <TextField label="Password" secureEntry />
-        <CustomButton />
+        <CustomButton label="Register" onPress={() => {}} />
         <Link className="touch-none select-none" href="/(root)/(auths)/login">
           Already have an account? Login
         </Link>

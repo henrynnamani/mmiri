@@ -1,9 +1,21 @@
 import CustomButton from '@/components/CustomButton';
 import TextField from '@/components/TextField';
 import { places } from '@/constant/places';
-import { Stack, router } from 'expo-router';
+import { Stack } from 'expo-router';
 import { useState } from 'react';
 import { FlatList, View, Text, SafeAreaView, TouchableOpacity } from 'react-native';
+import {
+  Select,
+  SelectTrigger,
+  SelectInput,
+  SelectIcon,
+  SelectPortal,
+  SelectBackdrop,
+  SelectContent,
+  SelectDragIndicatorWrapper,
+  SelectDragIndicator,
+  SelectItem,
+} from '@/components/ui/select';
 
 export default function Home() {
   const [activeIndex, setActiveIndex] = useState(places[0]);
@@ -28,9 +40,22 @@ export default function Home() {
         }}
       />
       {/* <FlatList /> */}
-      <View className="flex w-full items-center justify-center gap-10 p-10">
-        <Text className="text-lg font-medium">Do you need water?</Text>
-        <CustomButton label="Order Now" onPress={() => router.push('/(root)/order-process')} />
+      <View className="flex w-full items-center justify-center gap-10 bg-white p-10">
+        <Select>
+          <SelectTrigger>
+            <SelectInput />
+            <SelectIcon as={IconComponent} />
+          </SelectTrigger>
+          <SelectPortal>
+            <SelectBackdrop />
+            <SelectContent>
+              <SelectDragIndicatorWrapper>
+                <SelectDragIndicator />
+              </SelectDragIndicatorWrapper>
+              <SelectItem />
+            </SelectContent>
+          </SelectPortal>
+        </Select>
       </View>
     </View>
   );
