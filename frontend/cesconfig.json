@@ -24,7 +24,7 @@
     "overwrite": false,
     "importAlias": true,
     "packageManager": "npm",
-    "eas": true,
+    "eas": false,
     "publish": false
   },
   "packageManager": {
