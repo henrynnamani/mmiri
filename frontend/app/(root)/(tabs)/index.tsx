@@ -9,7 +9,7 @@ export default function Home() {
   const [activeIndex, setActiveIndex] = useState(places[0]);
 
   return (
-    <View className="flex h-screen items-center justify-center bg-white">
+    <View className="flex h-screen bg-white p-10">
       <Stack.Screen
         options={{
           headerShown: true,
@@ -28,10 +28,40 @@ export default function Home() {
         }}
       />
       {/* <FlatList /> */}
-      <View className="flex w-full items-center justify-center gap-10 p-10">
-        <Text className="text-lg font-medium">Do you need water?</Text>
+      <Text className="text-2xl font-medium">Hi Amara</Text>
+      <View className="mt-10 flex w-full gap-5 space-y-8">
+        <Text className="text-lg ">Need water today?</Text>
         <CustomButton label="Order Now" onPress={() => router.push('/(root)/order-process')} />
       </View>
     </View>
   );
 }
+
+// <ReactNativeModal
+//           isVisible={quantityModal?.state}
+//           onBackdropPress={() => setQuantityModal({
+//             ...quantityModal,
+//             state: false
+//           })}
+//         >
+//           <View className="bg-white px-7 py-9 rounded-2xl min-h-[300px]">
+//             <Text className="font-JakartaBold text-2xl mb-2">
+//               How many would you like to get?
+//             </Text>
+//             <InputField
+//               label="Code"
+//               icon={icons.lock}
+//               placeholderText='12345'
+//               onChangeText={(value) => setQuantityModal({
+//                 ...quantityModal,
+//                 quantity: Number(value)
+//               })}
+//             />
+
+//             <UniButton
+//               title="Add to Cart"
+//               onPress={addToCart}
+//               className="mt-5 bg-success-500"
+//             />
+//           </View>
+//         </ReactNativeModal>

@@ -9,6 +9,7 @@ export default function RootLayout() {
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="(auths)" options={{ headerShown: false }} />
+      <Stack.Screen name="order-process" options={{ headerShown: false }} />
     </Stack>
   );
 }
