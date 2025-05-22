@@ -45,7 +45,7 @@ const reviews = [
 
 const Testimonial = () => {
   return (
-    <div className='pt-20 gap-10 flex flex-col'>
+    <div className='gap-5 flex flex-col -pt-32'>
         <div className='w-full flex justify-center items-center'>
             <span className="text-xl font-medium">Testimonial</span>
         </div>
