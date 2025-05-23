@@ -12,5 +12,7 @@ export default [
     route("login", "./pages/login.tsx"),
     route("register", "./pages/register.tsx"),
   ]),
-  //   route("main", "./layouts/MainLayout.tsx", []),
+    route("", "./layouts/MainLayout.tsx", [
+      route("order", "./pages/place-order.tsx")
+    ]),
 ] satisfies RouteConfig;
