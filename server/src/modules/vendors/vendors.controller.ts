@@ -20,7 +20,6 @@ import { Roles } from '@modules/common/decorators/role.decorator';
 import { OrderService } from '@modules/order/order.service';
 
 @Roles(Role.VENDOR)
-@UseGuards(VendorGuard)
 @Controller('vendors')
 export class VendorsController {
   constructor(
@@ -35,12 +34,14 @@ export class VendorsController {
   }
 
   @Patch(':id')
+  @UseGuards(VendorGuard)
   @ChangeAvailabilityStatusDoc()
   changeAvailabilityStatus(@Param('id') vendorId: string) {
     return this.vendorsService.changeAvailabilityStatus(vendorId);
   }
 
   @Post(':id/locations/:locationId')
+  @UseGuards(VendorGuard)
   @AddVendorServingLocations()
   addServingLocations(
     @Param('id') vendorId: string,
@@ -50,6 +51,7 @@ export class VendorsController {
   }
 
   @Get(':id/orders')
+  @UseGuards(VendorGuard)
   @getVendorOrdersDoc()
   async getVendorOrders(
     @Param('id') id: string,

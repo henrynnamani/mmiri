@@ -7,6 +7,6 @@ export const dataSource = new DataSource({
   username: 'graey',
   password: 'pyr@hornet0101',
   database: 'mmiri',
-  entities: ['dist/src/**/*.model.{ts,js}'],
+  entities: ['dist/modules/**/*.model.{ts,js}'],
   migrations: ['dist/database/migrations/*.{ts,js}'],
 });
