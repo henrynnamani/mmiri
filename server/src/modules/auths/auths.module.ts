@@ -10,6 +10,9 @@ import { VendorLoginStrategy } from './strategy/login/vendor-login.strategy';
 import { TokenService } from '@modules/common/token.service';
 import { VendorsModule } from '@modules/vendors/vendors.module';
 import { UsersModule } from '@modules/users/users.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '@modules/users/model/users.model';
+import { Vendor } from '@modules/vendors/model/vendors.model';
 
 @Module({
   imports: [UsersModule, VendorsModule],

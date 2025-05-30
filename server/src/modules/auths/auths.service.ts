@@ -14,16 +14,23 @@ export class AuthsService {
 
   async register(registerDto: RegisterDto) {
     const strategy = this.registerStrategyFactory.getStrategy(registerDto.role);
-    const createdUser = await strategy.register(registerDto);
 
-    const { access_token } = this.tokenService.generateToken(createdUser);
+    console.log(registerDto)
 
-    return {
-      data: {
-        user: createdUser,
-        access_token,
-      },
-    };
+    try {
+      const createdUser = await strategy.register(registerDto);
+
+      const { access_token } = this.tokenService.generateToken(createdUser);              
+
+      return {
+        data: {
+          user: createdUser,
+          access_token,
+        },
+      };
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   async login(loginDto: LoginDto) {

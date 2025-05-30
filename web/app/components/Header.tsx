@@ -1,9 +1,17 @@
 import { GlassWater } from "lucide-react"
 import CustomButton from "./CustomButton"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useCookies } from "react-cookie"
+import { useNavigate } from "react-router"
 
 const Header = () => {
-  const [userLoggedIn, setUserLoggedIn] = useState(true)
+  const [userLoggedIn, setUserLoggedIn] = useState(false)
+  const [cookies] = useCookies(['user'])
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if(!cookies) setUserLoggedIn(true)
+  }, [])
 
   return (
     <div className="flex justify-between items-center sticky top-0 bg-white p-4 border rounded-full px-10">
