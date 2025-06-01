@@ -8,7 +8,9 @@ import {
 } from "react-router";
 import type { Route } from "./+types/root";
 import "./app.css";
-import { CookiesProvider, useCookies } from 'react-cookie'
+import { CookiesProvider } from 'react-cookie'
+import { Toaster } from "sonner";
+
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },

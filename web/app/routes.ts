@@ -20,5 +20,6 @@ export default [
       route("summary", "./pages/payment-summary.tsx"),
       route("confirmation", "./pages/payment-confirmation.tsx"),
     ]),
-  ])
+  ]),
+  route("*", "./pages/not-found.tsx"),
 ] satisfies RouteConfig;

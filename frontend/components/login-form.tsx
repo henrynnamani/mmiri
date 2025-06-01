@@ -1,3 +1,5 @@
+'use client'
+
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -9,18 +11,21 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useRouter } from "next/navigation"
 
-export function RegisterForm({
+export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const router = useRouter()
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Create a New Account</CardTitle>
+          <CardTitle className="text-xl">Welcome back</CardTitle>
           <CardDescription>
-            Sign up with your Google account
+            Login with your Google account
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -34,7 +39,7 @@ export function RegisterForm({
                       fill="currentColor"
                     />
                   </svg>
-                  Sign up with Google
+                  Login with Google
                 </Button>
               </div>
               <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
@@ -70,10 +75,10 @@ export function RegisterForm({
                 </Button>
               </div>
               <div className="text-center text-sm">
-                Already have an account?{" "}
-                <a href="#" className="underline underline-offset-4">
-                  Sign In
-                </a>
+                Don&apos;t have an account?{" "}
+                <button onClick={() => router.push("/auths/register")} className="underline underline-offset-4">
+                  Sign up
+                </button>
               </div>
             </div>
           </form>

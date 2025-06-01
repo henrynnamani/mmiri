@@ -1,3 +1,5 @@
+'use client'
+
 import {
     Select,
     SelectContent,
@@ -15,8 +17,7 @@ import {
   import { motion } from "motion/react";
 import { GlassWater, PlaneIcon } from "lucide-react";
 import SelectRoom from "./Select-Room";
-import { useNavigate } from "react-router";
-
+import { useRouter } from "next/navigation";
 
   const images = [
     "https://images.unsplash.com/photo-1517322048670-4fba75cbbb62?q=80&w=3000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -27,7 +28,7 @@ import { useNavigate } from "react-router";
   ];
 
 const SelectLocation = () => {
-    const navigate = useNavigate()
+    const router = useRouter()
 
   return (
     <div className='flex flex-col gap-5 border p-10 rounded-lg w-[400px]'>
@@ -109,7 +110,7 @@ const SelectLocation = () => {
             <button className="px-2 py-1 bg-gray-200 text-black dark:bg-black dark:border-black dark:text-white border border-gray-300 rounded-md text-sm w-28">
               Cancel
             </button>
-            <div onClick={() => navigate('/summary')} className="bg-black text-center text-white dark:bg-white dark:text-black text-sm px-2 py-1 rounded-md border border-black w-28 cursor-pointer">
+            <div onClick={() => router.push('/summary')} className="bg-black text-center text-white dark:bg-white dark:text-black text-sm px-2 py-1 rounded-md border border-black w-28 cursor-pointer">
               Book Now
             </div>
           </ModalFooter>

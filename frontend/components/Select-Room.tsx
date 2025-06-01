@@ -6,12 +6,9 @@ import {
     SelectValue,
   } from "@/components/ui/select"
 import { Input } from "./ui/input"
-import { useNavigate } from "react-router"
 
 
 const SelectRoom = () => {
-    const navigate = useNavigate()
-
   return (
     <div className='flex flex-col gap-5 p-10 rounded-lg w-full'>
         <span className="text-sm text-gray-400">Room: </span>

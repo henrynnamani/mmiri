@@ -75,6 +75,7 @@ export class RegisterDto {
     required: false,
   })
   @IsString()
+  @IsOptional()
   @Matches(/^\+234\d{10}$/, {
     message: 'Phone number must be a valid Nigerian number starting with +234',
   })

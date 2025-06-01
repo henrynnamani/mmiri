@@ -1,3 +1,5 @@
+'use client'
+
 import { GalleryVerticalEnd, GlassWater } from "lucide-react"
 import { LoginForm } from "@/components/login-form"
 import { cn } from "@/lib/utils"
@@ -12,15 +14,16 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState, type ChangeEvent } from "react"
-import api from "@/constants/api"
+// import api from "@/constants/api"
 import { toast } from "sonner"
-import { Link } from "react-router"
+import { useRouter } from "next/navigation"
 
 export default function RegisterPage () {
   const [userDetail, setUserDetail] = useState({
     email: '',
     password: ''
   })
+  const router = useRouter()
 
     const handleRegister = async (e) => {
       e.preventDefault()
@@ -28,6 +31,7 @@ export default function RegisterPage () {
         console.log("I am here")
         toast("Event has been created", {
           description: "Sunday, December 03, 2023 at 9:00 AM",
+          position: 'top-center',
           action: {
             label: "Undo",
             onClick: () => console.log("Undo"),
@@ -39,13 +43,13 @@ export default function RegisterPage () {
       }
     }
 
-    toast("Event has been created", {
-      description: "Sunday, December 03, 2023 at 9:00 AM",
-      action: {
-        label: "Undo",
-        onClick: () => console.log("Undo"),
-      },
-    })
+    // toast("Event has been created", {
+    //   description: "Sunday, December 03, 2023 at 9:00 AM",
+    //   action: {
+    //     label: "Undo",
+    //     onClick: () => console.log("Undo"),
+    //   },
+    // })
     
     const handleValueChange = (e: ChangeEvent<HTMLInputElement>) => {
       console.log('')
@@ -57,9 +61,6 @@ export default function RegisterPage () {
   
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-transparent p-6 md:p-10">
-      <button onClick={() => console.log('working!!')}>
-            Open Toast
-          </button>
       <div className="flex w-full max-w-sm flex-col gap-6">
         <a href="#" className="flex items-center gap-2 self-center font-medium">
           <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
@@ -125,9 +126,9 @@ export default function RegisterPage () {
               </div>
               <div className="text-center text-sm">
                 Already have an account?{" "}
-                <Link to="/auths/login" className="underline underline-offset-4">
+                <button onClick={() => router.push('/auth/login')} className="underline underline-offset-4">
                   Sign In
-                </Link>
+                </button>
               </div>
             </div>
           </form>
