@@ -17,39 +17,36 @@ import { useState, type ChangeEvent } from "react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import api from "@/constants"
+import { useCookies } from "react-cookie"
 
 export default function page () {
   const [userDetail, setUserDetail] = useState({
     email: '',
-    password: ''
+    password: '',
+    role: 'user'
   })
   const router = useRouter()
+  const [_, setCookie] = useCookies(['access_token'])
 
-    const handleRegister = async (e) => {
-      e.preventDefault()
-      try {
-        console.log("I am here")
-        toast("Event has been created", {
-          description: "Sunday, December 03, 2023 at 9:00 AM",
+  const handleRegister = async (e) => {
+    e.preventDefault()
+    try {
+      await api.post('/auths/signin', userDetail).then((res) => {
+        toast("Login Successful", {
           position: 'top-center',
-          action: {
-            label: "Undo",
-            onClick: () => console.log("Undo"),
-          },
         })
-        await api.post('/auths/signin', userDetail)
-      } catch(err) {
-        console.log(err)
-      }
-    }
+        setCookie("access_token", res.data.data.access_token, {
+          path: '/'
+        })
+      })
 
-    // toast("Event has been created", {
-    //   description: "Sunday, December 03, 2023 at 9:00 AM",
-    //   action: {
-    //     label: "Undo",
-    //     onClick: () => console.log("Undo"),
-    //   },
-    // })
+      router.push('/')
+    } catch(err) {
+      toast("Error logging In", {
+        position: 'top-center'
+      })
+    }
+  }
     
     const handleValueChange = (e: ChangeEvent<HTMLInputElement>) => {
       console.log('')

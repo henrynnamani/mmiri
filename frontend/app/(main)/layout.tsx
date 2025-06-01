@@ -14,14 +14,14 @@ export default function RootLayout({
   const [cookies] = useCookies(['access_token'])
   const router = useRouter()
 
-  useEffect(() => {
+  useEffect(() => {                                          
     const isHomePage = window.location.pathname === '/';
     const hasToken = cookies.access_token !== undefined;
 
     if (!isHomePage && !hasToken) {
       router.push('/auth/login');
     }
-  }, [cookies.access_token, router]);
+  }, []);
 
   return (
     <>
