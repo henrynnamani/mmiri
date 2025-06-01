@@ -14,9 +14,9 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState, type ChangeEvent } from "react"
-// import api from "@/constants/api"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import api from "@/constants"
 
 export default function page () {
   const [userDetail, setUserDetail] = useState({
@@ -37,7 +37,7 @@ export default function page () {
             onClick: () => console.log("Undo"),
           },
         })
-        // await api.post('/signup', userDetail)
+        await api.post('/auths/signin', userDetail)
       } catch(err) {
         console.log(err)
       }
@@ -121,7 +121,7 @@ export default function page () {
                     </a>
                 </div>
                 <Button onClick={handleRegister} type="submit" className="w-full">
-                  Sign Up
+                  Sign In
                 </Button>
               </div>
               <div className="text-center text-sm">

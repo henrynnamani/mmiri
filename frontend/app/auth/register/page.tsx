@@ -1,7 +1,6 @@
 'use client'
 
-import { GalleryVerticalEnd, GlassWater } from "lucide-react"
-import { LoginForm } from "@/components/login-form"
+import { GlassWater } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -14,42 +13,37 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState, type ChangeEvent } from "react"
-// import api from "@/constants/api"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import api from "@/constants"
+import { useCookies } from "react-cookie"
 
 export default function RegisterPage () {
+  const [cookie, setCookie] = useCookies(['access_token'])
   const [userDetail, setUserDetail] = useState({
     email: '',
-    password: ''
+    password: '',
+    role: 'user'
   })
   const router = useRouter()
 
     const handleRegister = async (e) => {
       e.preventDefault()
       try {
-        console.log("I am here")
-        toast("Event has been created", {
-          description: "Sunday, December 03, 2023 at 9:00 AM",
-          position: 'top-center',
-          action: {
-            label: "Undo",
-            onClick: () => console.log("Undo"),
-          },
+        await api.post('/auths/signup', userDetail).then((res) => {
+          toast("Registration Successful", {
+            position: 'top-center',
+          })
+          setCookie("access_token", res.data.data.access_token, {
+            path: '/'
+          })
         })
-        // await api.post('/signup', userDetail)
+
+        router.push('/')
       } catch(err) {
         console.log(err)
       }
     }
-
-    // toast("Event has been created", {
-    //   description: "Sunday, December 03, 2023 at 9:00 AM",
-    //   action: {
-    //     label: "Undo",
-    //     onClick: () => console.log("Undo"),
-    //   },
-    // })
     
     const handleValueChange = (e: ChangeEvent<HTMLInputElement>) => {
       console.log('')
