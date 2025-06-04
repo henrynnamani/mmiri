@@ -8,7 +8,6 @@ import { VendorsService } from '@modules/vendors/vendors.service';
 import * as SYS_MSG from '@modules/common/system-message';
 import { OrderModelAction } from './model/order.model-action';
 import { UsersService } from '@modules/users/users.service';
-// import { LodgePriceService } from '@modules/lodge_price/lodge_price.service';
 import { PaginationMeta } from '@modules/common/types/list-record.type';
 import { OrderStatus } from '@modules/common/enums';
 
@@ -18,7 +17,6 @@ export class OrderService {
     private orderModelAction: OrderModelAction,
     private usersService: UsersService,
     private vendorsService: VendorsService,
-    // private lodgePriceService: LodgePriceService,
   ) {}
 
   async placeOrder(orderDto: OrderDto) {
