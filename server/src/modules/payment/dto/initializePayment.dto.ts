@@ -12,11 +12,20 @@ export class InitializePaymentDto {
   noOfGallons: number;
 
   @ApiProperty({
-    description: 'ID of the vendor',
+    description: 'lodge ID',
     required: true,
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
   @IsString()
   @IsUUID()
-  vendorId: string;
+  lodgeId: string;
+
+  @ApiProperty({
+    description: 'ID of order',
+    required: true,
+    example: '8834-dhfskfh-3hsd9h3-sdh',
+  })
+  @IsString()
+  @IsUUID()
+  orderId: string;
 }

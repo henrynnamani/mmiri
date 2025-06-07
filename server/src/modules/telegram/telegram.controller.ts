@@ -8,13 +8,8 @@ export class TelegramController {
   constructor(private readonly telegramService: TelegramService) {}
 
   @Post('webhook')
-  create(@Body() body: any) {
-    const message = body.message;
-
-    if (!message || !message.text) return;
-
-    const text = message.text;
-    // return this.telegramService.create();
-
+  async receiveUpdate(@Body() body: any) {
+    await this.telegramService.handleWebhookUpdate(body);
+    return { ok: true };
   }
 }

@@ -17,12 +17,15 @@ export class HttpInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler<any>) {
     return next.handle().pipe(
       map((data) => {
+
+        console.log(data)
         const now = Date.now();
         const request = context.switchToHttp().getRequest();
         const isError = data instanceof Error && data !== null;
         const success = !isError;
 
         const message = data && data?.message ? data?.message : 'successful';
+
 
         delete data.message;
 

@@ -5,5 +5,6 @@ export enum Role {
 
 export enum OrderStatus {
   PENDING = 'pending',
+  ASSIGNED = 'assigned',
   DELIVERED = 'delivered',
 }

@@ -1,5 +1,6 @@
 import {
-  BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -10,6 +11,10 @@ import { OrderModelAction } from './model/order.model-action';
 import { UsersService } from '@modules/users/users.service';
 import { PaginationMeta } from '@modules/common/types/list-record.type';
 import { OrderStatus } from '@modules/common/enums';
+import { TelegramService } from '@modules/telegram/telegram.service';
+import { PaymentService } from '@modules/payment/payment.service';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class OrderService {
@@ -17,18 +22,14 @@ export class OrderService {
     private orderModelAction: OrderModelAction,
     private usersService: UsersService,
     private vendorsService: VendorsService,
+    @Inject(forwardRef(() => TelegramService))
+    private telegramService: TelegramService,
+    @Inject(forwardRef(() => PaymentService))
+    private paymentService: PaymentService,
   ) {}
 
-  async placeOrder(orderDto: OrderDto) {
-    const vendorExist = await this.vendorsService.getVendorById(
-      orderDto.vendorId,
-    );
-
-    if (!vendorExist) {
-      throw new NotFoundException(SYS_MSG.VENDOR_NOT_FOUND);
-    }
-
-    const userExist = await this.usersService.getUserById(orderDto.userId);
+  async placeOrder(loggedInUserId: string, orderDto: OrderDto) {
+    const userExist = await this.usersService.getUserById(loggedInUserId);
 
     if (!userExist) {
       throw new NotFoundException(SYS_MSG.USER_NOT_FOUND);
@@ -36,19 +37,26 @@ export class OrderService {
 
     const order = await this.orderModelAction.create({
       createPayload: {
-        amountPayed: orderDto.totalAmount,
         noOfGallons: orderDto.noOfGallons,
-        vendor: vendorExist,
+        roomNumber: orderDto.roomNumber,
         user: userExist,
-        paymentReference: orderDto.paymentReference,
       },
       transactionOptions: {
         useTransaction: false,
       },
     });
 
+    // initiate payment with orderId
+    const response = await this.paymentService.initiatePayment(userExist, {
+      noOfGallons: orderDto.noOfGallons,
+      orderId: order.id,
+      lodgeId: orderDto.lodgeId,
+    });
+
+    // await this.telegramService.notifyVendorOfOrder(vendorExist.chatId, order)
+
     return {
-      data: order,
+      data: response,
       message: SYS_MSG.ORDER_PLACED_SUCCESSFULLY,
     };
   }
@@ -57,37 +65,6 @@ export class OrderService {
     return this.orderModelAction.get({
       getRecordIdentifierOption: { paymentReference: reference },
     });
-  }
-
-  async updateOrderStatus(reference: string, status: boolean = true) {
-    const orderExist = await this.getOrderByReference(reference);
-
-    if (!orderExist) {
-      throw new NotFoundException(SYS_MSG.ORDER_NOT_FOUND);
-    }
-
-    await this.orderModelAction.update({
-      identifierOptions: { id: orderExist.id },
-      updatePayload: {
-        paymentStatus: status,
-      },
-      transactionOption: {
-        useTransaction: false,
-      },
-    });
-
-    const updatedOrder = await this.orderModelAction.get({
-      getRecordIdentifierOption: { id: orderExist.id },
-    });
-
-    if (updatedOrder?.paymentStatus !== status) {
-      throw new BadRequestException(SYS_MSG.ORDER_STATUS_NOT_UPDATED);
-    }
-
-    return {
-      data: updatedOrder,
-      message: SYS_MSG.ORDER_STATUS_UPDATED_SUCCESSFULLY,
-    };
   }
 
   async getUserOrders(

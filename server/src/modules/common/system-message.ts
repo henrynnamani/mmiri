@@ -41,8 +41,14 @@ export const ORDER_STATUS_NOT_UPDATED = 'Order status not updated';
 
 export const LOCATION_NOT_FOUND = 'Location Not Found';
 export const LOCATION_CREATED_SUCCESSFULLY = 'Location created successfully';
+export const LOCATION_AMOUNT_NOT_SET = 'Location amount not set';
 
 export const ERROR_INITIATING_PAYMENT_TRANSACTION =
   'Error initiating payment transaction';
 
 export const PRICE_UPDATED_SUCCESSFULLY = 'Price updated successfully';
+
+export const VENDOR_LOCATION_NOT_FOUND = 'Vendor or Location not found'
+export const LOCATION_SERVED = 'Vendor already serve this location'
+
+export const PAYMENT_RECORD_CREATION_FAILED = 'Failed payment record creation'
