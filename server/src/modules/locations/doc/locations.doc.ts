@@ -38,6 +38,28 @@ export const LocationDoc = () => {
   );
 };
 
+export const LocationsDoc = () => {
+  return applyDecorators(
+    ApiOperation({ summary: 'Get all locations' }),
+    ApiBearerAuth(),
+    ApiResponse({
+      status: 201,
+      description: 'All locations',
+      type: [LocationSuccessDto],
+    }),
+    ApiResponse({
+      status: 401,
+      description: 'Unauthorized',
+      type: LocationUnauthorizedDto,
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'Not Found',
+      type: LocationNotFoundDto,
+    }),
+  );
+};
+
 export const GetLocationLodgesDoc = () => {
   return applyDecorators(
     ApiOperation({ summary: 'Get lodges within a location' }),

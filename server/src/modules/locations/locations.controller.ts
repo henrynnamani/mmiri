@@ -5,6 +5,7 @@ import {
   GetLocationLodgesDoc,
   GetLocationVendorDoc,
   LocationDoc,
+  LocationsDoc,
 } from './doc/locations.doc';
 
 @Controller('locations')
@@ -15,6 +16,12 @@ export class LocationsController {
   @LocationDoc()
   createLocation(@Body() locationData: LocationDto) {
     return this.locationsService.createLocation(locationData);
+  }
+
+  @Get('/')
+  @LocationsDoc()
+  getLocations() {
+    return this.locationsService.getLocations();
   }
 
   @Get(':id/lodges')

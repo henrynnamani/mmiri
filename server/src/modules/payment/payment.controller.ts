@@ -1,22 +1,19 @@
-import { Body, Controller, Headers, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Headers,
+  NotFoundException,
+  Post,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import { skipAuth } from '@modules/common/decorators/is-public.decorator';
-import { InjectQueue } from '@nestjs/bullmq';
-import { Queue } from 'bullmq';
-
-@Controller('payment')
-export class PaymentController {
-  constructor(private readonly paymentService: PaymentService) {}
-
-  // @InitiatePaymentDoc()
-  // initiatePayment(@Body() paymentDto: InitializePaymentDto, @Req() req) {
-  //   const loggedInUser = req.user.sub;
-
-  //   return this.paymentService.initiatePayment(loggedInUser, paymentDto);
-  // }
-}
+import { TelegramService } from '@modules/telegram/telegram.service';
+import { OrderService } from '@modules/order/order.service';
+import * as SYS_MSG from '@modules/common/system-message';
 
 @skipAuth()
 @Controller('webhook')
@@ -24,7 +21,8 @@ export class PaystackController {
   constructor(
     private config: ConfigService,
     private paymentService: PaymentService,
-    @InjectQueue('assign-vendor') private orderQueue: Queue,
+    private telegramService: TelegramService,
+    private orderService: OrderService,
   ) {}
   @Post()
   async handleWebhook(
@@ -43,8 +41,18 @@ export class PaystackController {
 
     if (hash == req.headers['x-paystack-signature']) {
       const body = req.body;
+
       if (body.event === 'charge.success') {
         const orderId: string = body.data.metadata?.orderId;
+        // const lodgeId: string = body.data.metadata?.lodgeId;
+
+        const response = await this.orderService.getOrderById(orderId);
+
+        if (!response) {
+          throw new NotFoundException(SYS_MSG.ORDER_NOT_FOUND);
+        }
+
+        console.log('I truly hit');
 
         await this.paymentService.updatePaymentRecord(
           orderId,
@@ -52,9 +60,10 @@ export class PaystackController {
           true,
         );
 
-        await this.orderQueue.add('assign-vendor', {
-          orderId,
-        });
+        await this.telegramService.notifyVendorOfOrder(
+          Number(response?.vendor.chatId),
+          response,
+        );
       }
     }
 

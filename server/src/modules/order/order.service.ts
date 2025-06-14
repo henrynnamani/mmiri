@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   forwardRef,
   Inject,
   Injectable,
@@ -15,6 +16,9 @@ import { TelegramService } from '@modules/telegram/telegram.service';
 import { PaymentService } from '@modules/payment/payment.service';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { LodgePriceModelAction } from '@modules/lodge_price/model/lodge_price.model-action';
+import { Vendor } from '@modules/vendors/model/vendors.model';
+import { Not } from 'typeorm';
 
 @Injectable()
 export class OrderService {
@@ -26,6 +30,7 @@ export class OrderService {
     private telegramService: TelegramService,
     @Inject(forwardRef(() => PaymentService))
     private paymentService: PaymentService,
+    private lodgePriceModelAction: LodgePriceModelAction,
   ) {}
 
   async placeOrder(loggedInUserId: string, orderDto: OrderDto) {
@@ -46,14 +51,34 @@ export class OrderService {
       },
     });
 
+    const vendors: Vendor[] =
+      await this.lodgePriceModelAction.findAvailableVendorsByLodge(
+        orderDto.lodgeId,
+      );
+
+    if (!vendors) {
+      const response = await this.paymentService.initiatePayment(userExist, {
+        noOfGallons: orderDto.noOfGallons,
+        orderId: order.id,
+        lodgeId: orderDto.lodgeId,
+      });
+      return {
+        data: response,
+        message: SYS_MSG.ORDER_PLACED_SUCCESSFULLY,
+      };
+    }
+
+    const selectedVendor = vendors[0];
+
+    await this.assignVendorToOrder(order?.id, selectedVendor.id);
+
     // initiate payment with orderId
     const response = await this.paymentService.initiatePayment(userExist, {
       noOfGallons: orderDto.noOfGallons,
       orderId: order.id,
       lodgeId: orderDto.lodgeId,
+      subaccount: selectedVendor?.subaccount,
     });
-
-    // await this.telegramService.notifyVendorOfOrder(vendorExist.chatId, order)
 
     return {
       data: response,
@@ -61,19 +86,57 @@ export class OrderService {
     };
   }
 
+  // async completeOrder(orderId: string) {
+  //   await this.orderModelAction.update({
+  //     identifierOptions: { id: orderId },
+  //     updatePayload: {
+  //       status: OrderStatus.COMPLETED,
+  //     },
+  //     transactionOption: {
+  //       useTransaction: false,
+  //     },
+  //   });
+
+  //   const response = await this.orderModelAction.get({
+  //     getRecordIdentifierOption: { id: orderId },
+  //     relations: ['vendor', 'payments'],
+  //   });
+
+  //   if (!response) {
+  //     throw new NotFoundException(SYS_MSG.ORDER_NOT_FOUND);
+  //   }
+
+  //   const paidPayments = response.payments?.filter((p) => p.status === true)[0];
+
+  //   return {
+  //     data: response,
+  //   };
+
+  // }
+
   async getOrderByReference(reference: string) {
     return this.orderModelAction.get({
       getRecordIdentifierOption: { paymentReference: reference },
     });
   }
 
-  async getUserOrders(
-    id: string,
-    pagination: Pick<PaginationMeta, 'page' | 'limit'>,
-  ) {
+  async getOrderById(orderId: string) {
+    return this.orderModelAction.get({
+      getRecordIdentifierOption: { id: orderId },
+      relations: ['user', 'vendor'],
+    });
+  }
+
+  async getUserOrders(id: string) {
     return this.orderModelAction.list({
-      queryOption: { userId: id, status: OrderStatus.PENDING },
-      pagination,
+      queryOption: {
+        userId: id,
+        status: Not(OrderStatus.COMPLETED),
+      },
+      pagination: {
+        limit: 5,
+        page: 1,
+      },
     });
   }
 
@@ -85,5 +148,46 @@ export class OrderService {
       queryOption: { vendorId: id, status: OrderStatus.PENDING },
       pagination,
     });
+  }
+
+  async assignVendorToOrder(orderId: string, vendorId: string) {
+    const response = await this.orderModelAction.update({
+      identifierOptions: {
+        id: orderId,
+      },
+      updatePayload: {
+        vendorId,
+        status: OrderStatus.ASSIGNED,
+      },
+      transactionOption: {
+        useTransaction: false,
+      },
+    });
+
+    return {
+      data: response,
+    };
+  }
+
+  async updateOrderStatus(orderId: string, status: OrderStatus) {
+    const order = await this.orderModelAction.get({
+      getRecordIdentifierOption: { id: orderId },
+    });
+
+    if (order?.status === status) {
+      return false;
+    }
+
+    await this.orderModelAction.update({
+      identifierOptions: { id: orderId },
+      updatePayload: {
+        status,
+      },
+      transactionOption: {
+        useTransaction: false,
+      },
+    });
+
+    return true;
   }
 }

@@ -25,7 +25,7 @@ export class Order extends BaseEntity {
   noOfGallons: number;
 
   @Column({ nullable: true })
-  roomNumber: string
+  roomNumber: string;
 
   @Column({ enum: OrderStatus, default: OrderStatus.PENDING })
   status: OrderStatus;

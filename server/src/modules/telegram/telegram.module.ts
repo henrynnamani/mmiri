@@ -11,9 +11,10 @@ import { VendorLocationModelAction } from '@modules/vendor_locations/model/vendo
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Vendor } from '@modules/vendors/model/vendors.model';
 import { VendorLocation } from '@modules/vendor_locations/model/vendor_locations.model';
+import { OrderModule } from '@modules/order/order.module';
 
 @Module({
-  imports: [forwardRef(() => VendorsModule), LocationsModule, LodgePriceModule],
+  imports: [forwardRef(() => VendorsModule), LocationsModule, LodgePriceModule, forwardRef(() => OrderModule)],
   controllers: [TelegramController],
   providers: [TelegramService],
   exports: [TelegramService],

@@ -13,11 +13,10 @@ import { LodgesModule } from '@modules/lodges/lodges.module';
 import { LocationsModule } from '@modules/locations/locations.module';
 import { LodgePrice } from '@modules/lodge_price/model/lodge_price.model';
 import { TelegramModule } from '@modules/telegram/telegram.module';
-import { PaymentService } from '@modules/payment/payment.service';
 import { PaymentModule } from '@modules/payment/payment.module';
 import { OrderController } from './order.controller';
-import { BullModule } from '@nestjs/bullmq';
 import { OrderProcessor } from './order.processor';
+import { OrderGateway } from './order.gateway';
 
 @Module({
   imports: [
@@ -37,6 +36,7 @@ import { OrderProcessor } from './order.processor';
     LodgePriceService,
     LodgePriceModelAction,
     OrderProcessor,
+    OrderGateway,
   ],
   exports: [OrderService, OrderModelAction],
 })

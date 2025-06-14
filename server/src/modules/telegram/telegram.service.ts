@@ -1,14 +1,20 @@
-import { Role } from '@modules/common/enums';
+import { OrderStatus, Role } from '@modules/common/enums';
 import { LocationsService } from '@modules/locations/locations.service';
 import { VendorLocationsService } from '@modules/vendor_locations/vendor_locations.service';
 import { VendorsService } from '@modules/vendors/vendors.service';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import TelegramBot from 'node-telegram-bot-api';
 import * as SYS_MSG from '@modules/common/system-message';
 import { LodgePriceService } from '@modules/lodge_price/lodge_price.service';
 import { Order } from '@modules/order/model/order.model';
+import { OrderService } from '@modules/order/order.service';
 
 @Injectable()
 export class TelegramService {
@@ -20,6 +26,8 @@ export class TelegramService {
     private locationsService: LocationsService,
     private vendorLocationService: VendorLocationsService,
     private lodgePriceService: LodgePriceService,
+    @Inject(forwardRef(() => OrderService))
+    private orderService: OrderService,
   ) {}
 
   onModuleInit() {
@@ -36,176 +44,223 @@ export class TelegramService {
       .catch(console.error);
 
     this.bot.on('callback_query', async (callbackQuery) => {
+      console.log('Received callback:', callbackQuery.data);
       const chatId = callbackQuery.message?.chat.id as number;
       const data = callbackQuery.data as string;
 
       const session = this.sessions.get(chatId);
 
-      if (!session) return;
+      // if (!session) return;
 
-      // ✅ Confirm bank flow
-      if (data === 'confirm_bank') {
-        await this.bot.sendMessage(chatId, 'Processing... ⏳');
+      if (/^[0-9a-fA-F-]+:(od|dl|co)$/.test(data)) {
+        const [orderId, actionCode] = data.split(':');
 
-        try {
-          const payload = {
-            email: session.email,
-            phoneNumber: session.phone,
-            accountNumber: session.account,
-            bankCode: session.bank,
-            businessName: session.name,
-            role: Role.VENDOR,
-            chatId: chatId,
-            lodgeId: session.lodgeId, // include if already selected
-          };
+        const statusMap: Record<string, OrderStatus> = {
+          od: OrderStatus.ON_DELIVERY,
+          dl: OrderStatus.DELIVERED,
+          co: OrderStatus.CANCELLED,
+        };
 
-          await this.vendorService.registerVendor(payload);
+        const newStatus = statusMap[actionCode];
 
-          await this.bot.sendMessage(
-            chatId,
-            '✅ Vendor registration completed!.',
-          );
-        } catch (err) {
-          console.error(err);
-          await this.bot.sendMessage(
-            chatId,
-            '❌ Something went wrong during registration.',
-          );
+        const updateStatus = await this.orderService.updateOrderStatus(
+          orderId,
+          newStatus,
+        );
+
+        if (!updateStatus) {
+          const message =
+            actionCode === 'od'
+              ? 'Order is already on delivery'
+              : 'Please wait, while user confirm delivery 📦.';
+          await this.bot.sendMessage(chatId, message);
+          return;
         }
 
-        this.sessions.delete(chatId);
+        if (actionCode === 'od') {
+          await this.bot.sendMessage(
+            chatId,
+            `Alright 👍, You will be remitted once order is delivered 🖖`,
+          );
+        } else if (actionCode === 'dl') {
+          await this.bot.sendMessage(chatId, `💸 Order Completed!!!`);
+        }
+
+        await this.bot.answerCallbackQuery(callbackQuery.id);
         return;
       }
 
-      // 🏙️ Select Location
+      if (data === 'confirm_bank') {
+        this.bankConfirmationFlow(chatId, session);
+      }
+
       if (data.startsWith('select_location:')) {
         const locationId = data.split(':')[1];
-
-        session.locationId = locationId;
-        const vendor = await this.vendorService.getVendorByChatId(chatId);
-        const location =
-          await this.locationsService.findLocationById(locationId);
-
-        if (!vendor || !location)
-          throw new BadRequestException(SYS_MSG.VENDOR_LOCATION_NOT_FOUND);
-
-        try {
-          await this.vendorLocationService.addServingLocation(vendor, location);
-          await this.bot.sendMessage(chatId, 'Location activated ✅');
-        } catch (err) {
-          await this.bot.sendMessage(
-            chatId,
-            '🛑 You already serve this location',
-          );
-          return;
-        }
-
-        const response =
-          await this.locationsService.getLocationLodges(locationId);
-
-        if (!response?.lodges.length) {
-          await this.bot.sendMessage(
-            chatId,
-            '🚫 No lodges found in that location.',
-          );
-          return;
-        }
-
-        await this.bot.sendMessage(
-          chatId,
-          '🏨 Select Lodges you want to serve:',
-          {
-            reply_markup: {
-              inline_keyboard: [
-                ...response.lodges.map((lodge) => [
-                  {
-                    text: `⬜️ ${lodge.name}`,
-                    callback_data: `toggle_lodge:${lodge.id}`,
-                  },
-                ]),
-                [
-                  {
-                    text: '✅ Done Selecting',
-                    callback_data: 'done_selecting_lodges',
-                  },
-                ],
-              ],
-            },
-          },
-        );
-
-        return;
+        this.selectLocationFlow(locationId, chatId, session);
       }
 
       if (!session.selectedLodges) {
         session.selectedLodges = [];
       }
 
-      // ✅ Done selecting
       if (data === 'done_selecting_lodges') {
-        if (session.selectedLodges.length === 0) {
-          await this.bot.sendMessage(
-            chatId,
-            '⚠️ You need to select at least one lodge.',
-          );
-        } else {
-          session.selectedLodges.map((lodgeId) => {
-            this.lodgePriceService.setVendorLodge({ chatId, lodgeId });
-          });
-          await this.bot.sendMessage(
-            chatId,
-            `✅ You selected ${session.selectedLodges.length} lodge(s).`,
-          );
-          // Proceed to next step or confirmation
-        }
-        return;
+        this.doneSelectingLodgeFlow(session, chatId);
       }
 
-      // 🏨 Select/deselect lodge
       if (data.startsWith('toggle_lodge:')) {
         const lodgeId = data.split(':')[1];
 
         // Toggle selection
-        const index = session.selectedLodges.indexOf(lodgeId);
-        if (index > -1) {
-          session.selectedLodges.splice(index, 1); // Deselect
-        } else {
-          session.selectedLodges.push(lodgeId); // Select
-        }
-
-        // Re-render updated lodge list
-        const response = await this.locationsService.getLocationLodges(
-          session.locationId,
-        );
-        await this.bot.editMessageReplyMarkup(
-          {
-            inline_keyboard: [
-              ...response!.lodges.map((lodge) => {
-                const selected = session.selectedLodges.includes(lodge.id);
-                return [
-                  {
-                    text: `${selected ? '✅' : '⬜️'} ${lodge.name}`,
-                    callback_data: `toggle_lodge:${lodge.id}`,
-                  },
-                ];
-              }),
-              [
-                {
-                  text: '✅ Done Selecting',
-                  callback_data: 'done_selecting_lodges',
-                },
-              ],
-            ],
-          },
-          {
-            chat_id: chatId,
-            message_id: callbackQuery.message?.message_id,
-          },
-        );
-
-        return;
+        this.toggleLocationFlow(lodgeId, session, chatId, callbackQuery);
       }
     });
+  }
+
+  public async toggleLocationFlow(
+    lodgeId: string,
+    session: any,
+    chatId: number,
+    callbackQuery: any,
+  ) {
+    const index = session.selectedLodges.indexOf(lodgeId);
+    if (index > -1) {
+      session.selectedLodges.splice(index, 1); // Deselect
+    } else {
+      session.selectedLodges.push(lodgeId); // Select
+    }
+
+    // Re-render updated lodge list
+    const response = await this.locationsService.getLocationLodges(
+      session.locationId,
+    );
+    await this.bot.editMessageReplyMarkup(
+      {
+        inline_keyboard: [
+          ...response!.lodges.map((lodge) => {
+            const selected = session.selectedLodges.includes(lodge.id);
+            return [
+              {
+                text: `${selected ? '✅' : '⬜️'} ${lodge.name}`,
+                callback_data: `toggle_lodge:${lodge.id}`,
+              },
+            ];
+          }),
+          [
+            {
+              text: '✅ Done Selecting',
+              callback_data: 'done_selecting_lodges',
+            },
+          ],
+        ],
+      },
+      {
+        chat_id: chatId,
+        message_id: callbackQuery.message?.message_id,
+      },
+    );
+
+    return;
+  }
+
+  public async doneSelectingLodgeFlow(session: any, chatId: number) {
+    if (session.selectedLodges.length === 0) {
+      await this.bot.sendMessage(
+        chatId,
+        '⚠️ You need to select at least one lodge.',
+      );
+    } else {
+      session.selectedLodges.map((lodgeId) => {
+        this.lodgePriceService.setVendorLodge({ chatId, lodgeId });
+      });
+      await this.bot.sendMessage(
+        chatId,
+        `✅ You selected ${session.selectedLodges.length} lodge(s).`,
+      );
+      // Proceed to next step or confirmation
+    }
+    return;
+  }
+
+  public async selectLocationFlow(
+    locationId: string,
+    chatId: number,
+    session: any,
+  ) {
+    session.locationId = locationId;
+    const vendor = await this.vendorService.getVendorByChatId(chatId);
+    const location = await this.locationsService.findLocationById(locationId);
+
+    if (!vendor || !location)
+      throw new BadRequestException(SYS_MSG.VENDOR_LOCATION_NOT_FOUND);
+
+    try {
+      await this.vendorLocationService.addServingLocation(vendor, location);
+      await this.bot.sendMessage(chatId, 'Location activated ✅');
+    } catch (err) {
+      await this.bot.sendMessage(chatId, '🛑 You already serve this location');
+      return;
+    }
+
+    const response = await this.locationsService.getLocationLodges(locationId);
+
+    if (!response?.lodges.length) {
+      await this.bot.sendMessage(
+        chatId,
+        '🚫 No lodges found in that location.',
+      );
+      return;
+    }
+
+    await this.bot.sendMessage(chatId, '🏨 Select Lodges you want to serve:', {
+      reply_markup: {
+        inline_keyboard: [
+          ...response.lodges.map((lodge) => [
+            {
+              text: `⬜️ ${lodge.name}`,
+              callback_data: `toggle_lodge:${lodge.id}`,
+            },
+          ]),
+          [
+            {
+              text: '✅ Done Selecting',
+              callback_data: 'done_selecting_lodges',
+            },
+          ],
+        ],
+      },
+    });
+
+    return;
+  }
+
+  public async bankConfirmationFlow(chatId: number, session: any) {
+    await this.bot.sendMessage(chatId, 'Processing... ⏳');
+
+    try {
+      const payload = {
+        email: session.email,
+        phoneNumber: session.phone,
+        accountNumber: session.account,
+        bankCode: session.bank,
+        businessName: session.name,
+        role: Role.VENDOR,
+        chatId: chatId,
+        lodgeId: session.lodgeId, // include if already selected
+      };
+
+      await this.vendorService.registerVendor(payload);
+
+      await this.bot.sendMessage(chatId, '✅ Vendor registration completed!.');
+    } catch (err) {
+      console.error(err);
+      await this.bot.sendMessage(
+        chatId,
+        '❌ Something went wrong during registration.',
+      );
+    }
+
+    this.sessions.delete(chatId);
+    return;
   }
 
   public async handleWebhookUpdate(body: any) {
@@ -324,6 +379,41 @@ export class TelegramService {
   }
 
   public async notifyVendorOfOrder(chatId: number, order: Order) {
-    await this.bot.sendMessage(chatId, 'You got an order');
+    console.log('I got here');
+    const message = `
+    🛒 New Order Notification
+    ----------------------------
+    Phone Number: ${order.user?.phoneNumber}
+    Room: ${order.roomNumber}
+    Number of Gallon: ${order.noOfGallons}
+    Delivery Address: ${order.roomNumber}
+    ----------------------------
+    Please update the order status:
+    `;
+
+    await this.bot.sendMessage(chatId, message, {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: '✅ On Delivery',
+              callback_data: `${order.id}:od`,
+            },
+          ],
+          [
+            {
+              text: '📦 Delivered',
+              callback_data: `${order.id}:dl`,
+            },
+          ],
+          [
+            {
+              text: '❌ Cancel Order',
+              callback_data: `${order.id}:co`,
+            },
+          ],
+        ],
+      },
+    });
   }
 }

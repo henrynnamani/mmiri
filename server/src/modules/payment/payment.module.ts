@@ -1,6 +1,6 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { PaymentService } from './payment.service';
-import { PaymentController, PaystackController } from './payment.controller';
+import { PaystackController } from './payment.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order } from '@modules/order/model/order.model';
 import { OrderModule } from '@modules/order/order.module';
@@ -14,20 +14,18 @@ import { LodgePriceModelAction } from '@modules/lodge_price/model/lodge_price.mo
 import { LodgePrice } from '@modules/lodge_price/model/lodge_price.model';
 import { PaymentModelAction } from './model/payment.model-action';
 import { Payment } from './model/payment.model';
-import { BullModule } from '@nestjs/bullmq';
+import { TelegramModule } from '@modules/telegram/telegram.module';
 
 @Module({
   imports: [
-    BullModule.registerQueue({
-      name: 'assign-vendor',
-    }),
     TypeOrmModule.forFeature([Order, Lodge, LodgePrice, Payment]),
     forwardRef(() => UsersModule),
     LocationsModule,
     forwardRef(() => VendorsModule),
     forwardRef(() => OrderModule),
+    TelegramModule,
   ],
-  controllers: [PaymentController, PaystackController],
+  controllers: [PaystackController],
   providers: [
     PaymentService,
     LodgesService,

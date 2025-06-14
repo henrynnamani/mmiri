@@ -1,7 +1,9 @@
 import {
   BadRequestException,
+  forwardRef,
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -17,6 +19,9 @@ import { PaymentDto } from './dto/payment.dto';
 import { PaymentModelAction } from './model/payment.model-action';
 import * as SYS_MSG from '@modules/common/system-message';
 import { LodgesService } from '@modules/lodges/lodges.service';
+import { Vendor } from '@modules/vendors/model/vendors.model';
+import { v4 as uuidv4 } from 'uuid';
+import { OrderService } from '@modules/order/order.service';
 
 @Injectable()
 export class PaymentService {
@@ -30,6 +35,8 @@ export class PaymentService {
     private readonly vendorService: VendorsService,
     private paymentModelAction: PaymentModelAction,
     private readonly lodgesServie: LodgesService,
+    @Inject(forwardRef(() => OrderService))
+    private readonly orderService: OrderService
   ) {
     this.paystackBaseUrl = this.config.get<string>('paystack.baseUrl');
     this.paystackSecretKey = this.config.get<string>('paystack.secretKey');
@@ -52,14 +59,7 @@ export class PaymentService {
 
   async initiatePayment(loggedInUser: User, paymentDto: InitializePaymentDto) {
     try {
-      // const vendor = await this.vendorService.getVendorById(
-      //   paymentDto.vendorId,
-      // );
-
-      // if (!vendor) {
-      //   throw new NotFoundException(SYS_MSG.VENDOR_NOT_FOUND);
-      // }
-
+      let paymentPayload;
       const locationAmount = await this.lodgesServie.getLodgeLocationPrice(
         paymentDto.lodgeId,
       );
@@ -73,15 +73,29 @@ export class PaymentService {
         paymentDto.noOfGallons,
       );
 
-      const paymentPayload = {
-        email: loggedInUser.email,
-        amount,
-        // subaccount: vendor.subaccount,
-        transaction_charge: SERVICE_CHARGE * 100,
-        metadata: {
-          orderId: paymentDto.orderId,
-        },
-      };
+      if(paymentDto.subaccount) {
+        paymentPayload = {
+          email: loggedInUser.email,
+          amount,
+          subaccount: paymentDto.subaccount,
+          transaction_charge: SERVICE_CHARGE * 100,
+          metadata: {
+            orderId: paymentDto.orderId,
+            lodgeId: paymentDto.lodgeId,
+          },
+        };
+      } else {
+        paymentPayload = {
+          email: loggedInUser.email,
+          amount,
+          // transaction_charge: SERVICE_CHARGE * 100,
+          metadata: {
+            orderId: paymentDto.orderId,
+            lodgeId: paymentDto.lodgeId,
+          },
+        };
+      }
+
 
       const response = await axios.post(
         `${this.paystackBaseUrl}/transaction/initialize`,
@@ -104,6 +118,7 @@ export class PaymentService {
 
       return response.data;
     } catch (err) {
+      console.log(err)
       throw new HttpException(
         SYS_MSG.ERROR_INITIATING_PAYMENT_TRANSACTION,
         HttpStatus.BAD_REQUEST,

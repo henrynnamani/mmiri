@@ -2,7 +2,12 @@
 
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { CookiesProvider } from "react-cookie";
+import { CookiesProvider, useCookies } from "react-cookie";
+import { SWRConfig } from 'swr'
+import api from "@/constants";
+import { useEffect } from "react";
+
+const fetcher = (url: string) => api.get(url).then(res => res.data);
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,8 +24,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   return (
+    <SWRConfig 
+      value={{
+        refreshInterval: 5000,
+        // dedupingInterval: 60000,
+        fetcher
+      }}
+    >
     <CookiesProvider>
         <html lang="en">
         <body
@@ -30,5 +41,6 @@ export default function RootLayout({
         </body>
         </html>
     </CookiesProvider>
+    </SWRConfig>
   );
 }

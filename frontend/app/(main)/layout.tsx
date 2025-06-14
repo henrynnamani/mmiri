@@ -4,7 +4,9 @@ import Header from "@/components/Header";
 import { useCookies } from "react-cookie";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-
+import useAuthCleanup from "@/lib";
+import useSWR from "swr";
+import useOrderStore from "@/store/order";
 
 export default function RootLayout({
   children,
@@ -13,15 +15,24 @@ export default function RootLayout({
 }>) {
   const [cookies] = useCookies(['access_token'])
   const router = useRouter()
+  const { data } = useSWR('users/order')
+  const { addOrderDetail } = useOrderStore()
+  const hasToken = cookies.access_token !== undefined;
 
-  useEffect(() => {                                          
-    const isHomePage = window.location.pathname === '/';
-    const hasToken = cookies.access_token !== undefined;
+  useAuthCleanup()
 
-    if (!isHomePage && !hasToken) {
-      router.push('/auth/login');
-    }
-  }, []);
+  // useEffect(() => {                   
+  //   const isHomePage = typeof window !== 'undefined' && window.location.pathname === '/';
+                       
+  //   if (!isHomePage && !hasToken) {
+  //     router.push('/auth/login'); 
+  //   }
+    
+  //   if(data?.data?.payload.length !== 0 && hasToken) {
+  //     addOrderDetail(data?.data?.payload)
+  //     router.push('/tracking')
+  //   }
+  // }, [data, hasToken]);
 
   return (
     <>

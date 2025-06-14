@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString, IsUUID } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class InitializePaymentDto {
   @ApiProperty({
@@ -28,4 +34,13 @@ export class InitializePaymentDto {
   @IsString()
   @IsUUID()
   orderId: string;
+
+  @ApiProperty({
+    description: 'Vendor subaccount',
+    required: true,
+    example: '8834-dhfskfh',
+  })
+  @IsUUID()
+  @IsOptional()
+  subaccount?: string;
 }
