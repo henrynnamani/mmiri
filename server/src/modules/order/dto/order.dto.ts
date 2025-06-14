@@ -1,25 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, isUUID, IsUUID } from 'class-validator';
 
 export class OrderDto {
-  @ApiProperty({
-    description: 'User ID',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    required: true,
-  })
-  @IsString()
-  @IsUUID()
-  userId: string;
-
-  @ApiProperty({
-    description: 'Vendor ID',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    required: true,
-  })
-  @IsString()
-  @IsUUID()
-  vendorId: string;
-
   @ApiProperty({
     description: 'Number of gallons',
     example: 10,
@@ -30,20 +12,20 @@ export class OrderDto {
   noOfGallons: number;
 
   @ApiProperty({
-    description: 'Total amount',
-    example: 100,
-    required: true,
-  })
-  @IsNumber()
-  @IsNotEmpty()
-  totalAmount: number;
-
-  @ApiProperty({
-    description: 'Payment reference',
-    example: 'Abchd9...dfhsd',
+    description: 'Room number',
+    example: 32,
     required: true,
   })
   @IsString()
   @IsNotEmpty()
-  paymentReference: string;
+  roomNumber: string;
+
+  @ApiProperty({
+    description: 'LodgeID',
+    example: 'dhfd-ehdhf9sd-fhskfhdsn',
+    required: true,
+  })
+  @IsString()
+  @IsUUID()
+  lodgeId: string;
 }

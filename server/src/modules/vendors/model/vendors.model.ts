@@ -10,8 +10,8 @@ export class Vendor extends BaseEntity {
   @Column({ nullable: false })
   email: string;
 
-  @Column()
-  password: string;
+  @Column({ nullable: true })
+  chatId: number;
 
   @Column()
   phoneNumber: string;

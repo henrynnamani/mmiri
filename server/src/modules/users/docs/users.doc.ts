@@ -12,7 +12,6 @@ export const UserOrdersDoc = () => {
   return applyDecorators(
     ApiOperation({ summary: 'Get all user order' }),
     ApiBearerAuth(),
-    ApiParam({ name: 'id', required: true, description: 'user Id' }),
     ApiResponse({ status: 200, type: UserOrderSuccessDto }),
     ApiResponse({ status: 400, type: UserBadRequestDto }),
   );

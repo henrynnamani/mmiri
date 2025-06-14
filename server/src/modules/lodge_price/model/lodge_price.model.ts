@@ -18,7 +18,6 @@ export class LodgePrice extends BaseEntity {
 
   @Column()
   lodgeId: string;
-
-  @Column({ nullable: false })
-  price: number;
+  // @Column({ nullable: false })
+  // price: number;
 }

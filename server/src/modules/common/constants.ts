@@ -1,1 +1,1 @@
-export const SERVICE_CHARGE = 100;
+export const SERVICE_CHARGE = 10;

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { LodgeDto } from './dto/lodges.dto';
 import { LocationsService } from '@modules/locations/locations.service';
 import { LodgeModelAction } from './model/lodges.mode-action';
@@ -52,12 +52,27 @@ export class LodgesService {
     });
   }
 
-  async getLodgePrices(lodgeId: string) {
-    return await this.lodgePriceModelAction.get({
-      getRecordIdentifierOption: { lodgeId },
-      relations: ['lodge', 'vendor'],
+  async getLodgeLocationPrice(id: string) {
+    const response = await this.lodgeModelAction.get({
+      getRecordIdentifierOption: {
+        id,
+      },
+      relations: ['location'],
     });
+
+    if(!response) throw new BadRequestException(SYS_MSG.LODGE_NOT_FOUND);
+
+    const price = await this.locationService.getLocationPrice(response?.location.id);
+
+    return price
   }
+
+  // async getLodgePrices(lodgeId: string) {
+  //   return await this.lodgePriceModelAction.get({
+  //     getRecordIdentifierOption: { lodgeId },
+  //     relations: ['lodge', 'vendor'],
+  //   });
+  // }
 
   async getLodgeVendors(id: string, page: number, limit: number) {
     const lodgeExist = await this.getLodgeById(id);

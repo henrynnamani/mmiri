@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { VendorsService } from './vendors.service';
 import { VendorsController } from './vendors.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -20,6 +20,8 @@ import { UsersModelAction } from '@modules/users/model/users.model-action';
 import { LodgesService } from '@modules/lodges/lodges.service';
 import { LodgePriceModelAction } from '@modules/lodge_price/model/lodge_price.model-action';
 import { LodgeModelAction } from '@modules/lodges/model/lodges.mode-action';
+import { TelegramModule } from '@modules/telegram/telegram.module';
+import { PaymentModule } from '@modules/payment/payment.module';
 
 @Module({
   imports: [
@@ -32,6 +34,8 @@ import { LodgeModelAction } from '@modules/lodges/model/lodges.mode-action';
       Lodge,
     ]),
     LocationsModule,
+    forwardRef(() => TelegramModule),
+    forwardRef(() => PaymentModule)
   ],
   controllers: [VendorsController],
   providers: [

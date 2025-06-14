@@ -13,9 +13,9 @@ export class LodgePriceService {
     private lodgePriceModelAction: LodgePriceModelAction,
   ) {}
 
-  async setLodgeCharge(lodgePriceDto: LodgePriceDto) {
-    const vendorExist = await this.vendorsService.getVendorById(
-      lodgePriceDto.vendorId,
+  async setVendorLodge(lodgePriceDto: LodgePriceDto) {
+    const vendorExist = await this.vendorsService.getVendorByChatId(
+      lodgePriceDto.chatId,
     );
 
     if (!vendorExist) {
@@ -30,11 +30,10 @@ export class LodgePriceService {
       throw new NotFoundException(SYS_MSG.LODGE_NOT_FOUND);
     }
 
-    const priceResponse = await this.lodgePriceModelAction.create({
+    const response = await this.lodgePriceModelAction.create({
       createPayload: {
         lodge: lodgeExist,
         vendor: vendorExist,
-        price: lodgePriceDto.price,
       },
       transactionOptions: {
         useTransaction: false,
@@ -42,56 +41,8 @@ export class LodgePriceService {
     });
 
     return {
-      data: priceResponse,
+      data: response,
       message: SYS_MSG.PRICE_SET_SUCCESSFULLY,
-    };
-  }
-
-  async getLodgePrice(vendorId: string, lodgeId: string) {
-    const response = await this.lodgePriceModelAction.get({
-      getRecordIdentifierOption: {
-        vendorId,
-        lodgeId,
-      },
-      relations: ['vendor'],
-    });
-
-    if (!response) {
-      throw new NotFoundException(SYS_MSG.VENDOR_LODGE_RECORD_NOT_FOUND);
-    }
-
-    return response;
-  }
-
-  async updateLodgeCharge(loggedInUser: string, id: string, price: number) {
-    const lodgePriceExist = await this.lodgePriceModelAction.get({
-      getRecordIdentifierOption: { id },
-    });
-
-    if (!lodgePriceExist) {
-      throw new NotFoundException(SYS_MSG.VENDOR_LODGE_RECORD_NOT_FOUND);
-    }
-
-    // I need to get lodge_price id of the vendor
-    const payload = {
-      price,
-    };
-
-    await this.lodgePriceModelAction.update({
-      identifierOptions: { id },
-      updatePayload: payload,
-      transactionOption: {
-        useTransaction: false,
-      },
-    });
-
-    const updatedLodgePrice = await this.lodgePriceModelAction.get({
-      getRecordIdentifierOption: { id },
-    });
-
-    return {
-      data: updatedLodgePrice,
-      message: SYS_MSG.PRICE_UPDATED_SUCCESSFULLY,
     };
   }
 }

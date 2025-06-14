@@ -1,16 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { UserLoginStrategy } from './user-login.strategy';
-import { VendorLoginStrategy } from './vendor-login.strategy';
 import { LoginStrategy } from './login-interface.strategy';
 
 @Injectable()
 export class LoginStrategyFactory {
   strategies: LoginStrategy[] = [];
-  constructor(
-    private userLoginStrategy: UserLoginStrategy,
-    private vendorLoginStrategy: VendorLoginStrategy,
-  ) {
-    this.strategies.push(this.userLoginStrategy, this.vendorLoginStrategy);
+  constructor(private userLoginStrategy: UserLoginStrategy) {
+    this.strategies.push(this.userLoginStrategy);
   }
 
   getStrategy(role: string): LoginStrategy {

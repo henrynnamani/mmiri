@@ -65,6 +65,7 @@ export class UsersService {
   getUserById(id: string) {
     return this.usersModelAction.get({
       getRecordIdentifierOption: { id },
+      relations: ['lodge'],
     });
   }
 
@@ -73,4 +74,6 @@ export class UsersService {
       getRecordIdentifierOption: { email },
     });
   }
+
+  getUserLocation(id: string) {}
 }

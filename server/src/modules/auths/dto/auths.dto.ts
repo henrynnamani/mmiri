@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsEnum,
+  IsNumber,
   IsOptional,
   IsString,
   IsStrongPassword,
@@ -31,7 +32,12 @@ export class RegisterDto {
     minLowercase: 1,
     minSymbols: 1,
   })
+  @IsOptional()
   password: string;
+
+  @IsNumber()
+  @IsOptional()
+  chatId: number;
 
   @ApiProperty({
     description: 'Business name of the user',
@@ -75,6 +81,7 @@ export class RegisterDto {
     required: false,
   })
   @IsString()
+  @IsOptional()
   @Matches(/^\+234\d{10}$/, {
     message: 'Phone number must be a valid Nigerian number starting with +234',
   })
