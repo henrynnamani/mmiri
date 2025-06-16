@@ -16,7 +16,6 @@ import { TelegramModule } from '@modules/telegram/telegram.module';
 import { PaymentModule } from '@modules/payment/payment.module';
 import { OrderController } from './order.controller';
 import { OrderProcessor } from './order.processor';
-import { OrderGateway } from './order.gateway';
 
 @Module({
   imports: [
@@ -36,7 +35,6 @@ import { OrderGateway } from './order.gateway';
     LodgePriceService,
     LodgePriceModelAction,
     OrderProcessor,
-    OrderGateway,
   ],
   exports: [OrderService, OrderModelAction],
 })

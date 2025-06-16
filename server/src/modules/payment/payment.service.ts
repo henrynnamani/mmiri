@@ -36,7 +36,7 @@ export class PaymentService {
     private paymentModelAction: PaymentModelAction,
     private readonly lodgesServie: LodgesService,
     @Inject(forwardRef(() => OrderService))
-    private readonly orderService: OrderService
+    private readonly orderService: OrderService,
   ) {
     this.paystackBaseUrl = this.config.get<string>('paystack.baseUrl');
     this.paystackSecretKey = this.config.get<string>('paystack.secretKey');
@@ -73,7 +73,7 @@ export class PaymentService {
         paymentDto.noOfGallons,
       );
 
-      if(paymentDto.subaccount) {
+      if (paymentDto.subaccount) {
         paymentPayload = {
           email: loggedInUser.email,
           amount,
@@ -96,7 +96,6 @@ export class PaymentService {
         };
       }
 
-
       const response = await axios.post(
         `${this.paystackBaseUrl}/transaction/initialize`,
         paymentPayload,
@@ -118,10 +117,9 @@ export class PaymentService {
 
       return response.data;
     } catch (err) {
-      console.log(err)
-      throw new HttpException(
+      console.log(err);
+      throw new BadRequestException(
         SYS_MSG.ERROR_INITIATING_PAYMENT_TRANSACTION,
-        HttpStatus.BAD_REQUEST,
       );
     }
   }

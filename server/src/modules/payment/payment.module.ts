@@ -33,6 +33,6 @@ import { TelegramModule } from '@modules/telegram/telegram.module';
     LodgePriceModelAction,
     PaymentModelAction,
   ],
-  exports: [PaymentService],
+  exports: [PaymentService, PaymentModelAction],
 })
 export class PaymentModule {}

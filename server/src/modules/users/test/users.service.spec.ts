@@ -121,19 +121,6 @@ describe('UsersService', () => {
     });
   });
 
-  describe('getUserById', () => {
-    it('should call get with correct id', async () => {
-      const user = { id: 'abc', email: 'id@test.com' };
-      mockUsersModelAction.get.mockResolvedValue(user);
-
-      const result = await service.getUserById('abc');
-      expect(result).toEqual(user);
-      expect(mockUsersModelAction.get).toHaveBeenCalledWith({
-        getRecordIdentifierOption: { id: 'abc' },
-      });
-    });
-  });
-
   describe('getUserByEmail', () => {
     it('should call get with correct email', async () => {
       const user = { id: 'abc', email: 'test@test.com' };

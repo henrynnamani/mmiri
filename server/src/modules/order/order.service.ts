@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   forwardRef,
   Inject,
   Injectable,
@@ -14,8 +13,6 @@ import { PaginationMeta } from '@modules/common/types/list-record.type';
 import { OrderStatus } from '@modules/common/enums';
 import { TelegramService } from '@modules/telegram/telegram.service';
 import { PaymentService } from '@modules/payment/payment.service';
-import { InjectQueue } from '@nestjs/bullmq';
-import { Queue } from 'bullmq';
 import { LodgePriceModelAction } from '@modules/lodge_price/model/lodge_price.model-action';
 import { Vendor } from '@modules/vendors/model/vendors.model';
 import { Not } from 'typeorm';
@@ -85,34 +82,6 @@ export class OrderService {
       message: SYS_MSG.ORDER_PLACED_SUCCESSFULLY,
     };
   }
-
-  // async completeOrder(orderId: string) {
-  //   await this.orderModelAction.update({
-  //     identifierOptions: { id: orderId },
-  //     updatePayload: {
-  //       status: OrderStatus.COMPLETED,
-  //     },
-  //     transactionOption: {
-  //       useTransaction: false,
-  //     },
-  //   });
-
-  //   const response = await this.orderModelAction.get({
-  //     getRecordIdentifierOption: { id: orderId },
-  //     relations: ['vendor', 'payments'],
-  //   });
-
-  //   if (!response) {
-  //     throw new NotFoundException(SYS_MSG.ORDER_NOT_FOUND);
-  //   }
-
-  //   const paidPayments = response.payments?.filter((p) => p.status === true)[0];
-
-  //   return {
-  //     data: response,
-  //   };
-
-  // }
 
   async getOrderByReference(reference: string) {
     return this.orderModelAction.get({

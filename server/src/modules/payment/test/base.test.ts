@@ -4,6 +4,10 @@ import { PaymentService } from '../payment.service';
 import { OrderService } from '@modules/order/order.service';
 import { LodgePriceService } from '@modules/lodge_price/lodge_price.service';
 import { ConfigService } from '@nestjs/config';
+import { LocationsService } from '@modules/locations/locations.service';
+import { VendorsService } from '@modules/vendors/vendors.service';
+import { PaymentModelAction } from '../model/payment.model-action';
+import { LodgesService } from '@modules/lodges/lodges.service';
 
 export const mockOrderService = {
   placeOrder: jest.fn(),
@@ -15,6 +19,24 @@ export const mockLodgePriceService = {
 
 export const mockUsersService = {
   getUserById: jest.fn(),
+};
+
+export const mockVendorsService = {
+  getVendorByChatId: jest.fn(),
+};
+
+export const mockLocationsService = {
+  getUserById: jest.fn(),
+};
+
+export const mockLodgesService = {
+  getLodgeLocationPrice: jest.fn(),
+};
+
+export const mockPaymentModelAction = {
+  create: jest.fn(),
+  get: jest.fn(),
+  update: jest.fn(),
 };
 
 export const mockConfigService = {
@@ -31,6 +53,22 @@ export const testingModule = () =>
       {
         provide: ConfigService,
         useValue: mockConfigService,
+      },
+      {
+        provide: LodgesService,
+        useValue: mockLodgesService,
+      },
+      {
+        provide: PaymentModelAction,
+        useValue: mockPaymentModelAction,
+      },
+      {
+        provide: VendorsService,
+        useValue: mockVendorsService,
+      },
+      {
+        provide: LocationsService,
+        useValue: mockLocationsService,
       },
       {
         provide: OrderService,

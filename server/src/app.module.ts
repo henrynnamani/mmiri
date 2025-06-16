@@ -23,22 +23,10 @@ import { dataSource } from '@database/datasource';
 import { paymentConfig } from '@config/payment.config';
 import { TelegramModule } from '@modules/telegram/telegram.module';
 import { telegramConfig } from '@config/telegram.config';
-import { BullModule } from '@nestjs/bullmq';
 import { queueConfig } from '@config/queue.config';
 
 @Module({
   imports: [
-    BullModule.forRoot({
-      connection: {
-        host: 'localhost',
-        port: 6380,
-      },
-      defaultJobOptions: {
-        removeOnComplete: 1000,
-        removeOnFail: 8000,
-        attempts: 4,
-      },
-    }),
     JwtModule.registerAsync({
       global: true,
       useFactory: (config: ConfigService) => ({

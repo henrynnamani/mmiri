@@ -1,5 +1,15 @@
 const mockLocationData = {
-  locations: ['hilltop', 'odenigwe'],
+  locations: [
+    {
+      name: ',hilltop',
+
+      price: 12,
+    },
+    {
+      name: 'odenigwe',
+      price: 100,
+    },
+  ],
   universityId: 'hfdh03-dfhhfd-0183sd',
 };
 

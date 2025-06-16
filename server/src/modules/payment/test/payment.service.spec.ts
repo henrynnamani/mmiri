@@ -1,14 +1,17 @@
 import { TestingModule } from '@nestjs/testing';
 import {
   mockLodgePriceService,
+  mockLodgesService,
   mockOrderService,
+  mockPaymentModelAction,
   mockUsersService,
   testingModule,
 } from './base.test';
 import { PaymentService } from '../payment.service';
 import axios from 'axios';
 import { SERVICE_CHARGE } from '@modules/common/constants';
-import { HttpException } from '@nestjs/common';
+import { BadRequestException, HttpException } from '@nestjs/common';
+import { mockUser } from '@modules/users/test/users.test.mock';
 
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -20,85 +23,125 @@ describe('PaymentService', () => {
     const module: TestingModule = await testingModule().compile();
 
     service = module.get<PaymentService>(PaymentService);
+    (service as any).paystackSecretKey = 'test_key';
+    (service as any).paystackBaseUrl = 'https://api.paystack.co';
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  it('should initiate payment successfully', async () => {
-    const user = { id: 'user1', email: 'test@example.com', lodgeId: 'lodge1' };
-    const vendorId = 'vendor123';
-    const price = 500;
-    const subaccount = 'sub_acc_id';
+  jest.mock('axios');
+  const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-    const lodgePrice = {
-      price,
-      vendor: { subaccount },
-    };
+  describe('PaymentService', () => {
+    describe('createPaymentRecord', () => {
+      it('should throw if creation fails', async () => {
+        (mockPaymentModelAction.create as jest.Mock).mockResolvedValue(null);
+        await expect(
+          service.createPaymentRecord({
+            orderId: 'order1',
+            amount: 500,
+            status: false,
+            reference: 'ref123',
+          }),
+        ).rejects.toThrow(BadRequestException);
+      });
 
-    const responseMock = {
-      data: {
-        data: {
+      it('should return created payment record', async () => {
+        const mockResponse = { id: 'payment1' };
+        (mockPaymentModelAction.create as jest.Mock).mockResolvedValue(
+          mockResponse,
+        );
+        const result = await service.createPaymentRecord({
+          orderId: 'order1',
+          amount: 500,
+          status: false,
           reference: 'ref123',
-        },
-      },
-    };
-
-    const dto = {
-      vendorId,
-      noOfGallons: 2,
-    };
-
-    mockUsersService.getUserById.mockResolvedValue(user);
-    mockLodgePriceService.getLodgePrice.mockResolvedValue(lodgePrice);
-    mockedAxios.post.mockResolvedValue(responseMock);
-
-    await service.initiatePayment('user1', dto);
-
-    expect(mockUsersService.getUserById).toHaveBeenCalledWith('user1');
-    expect(mockLodgePriceService.getLodgePrice).toHaveBeenCalledWith(
-      dto.vendorId,
-      user.lodgeId,
-    );
-    expect(mockOrderService.placeOrder).toHaveBeenCalledWith({
-      userId: 'user1',
-      vendorId,
-      noOfGallons: dto.noOfGallons,
-      totalAmount: price * dto.noOfGallons + SERVICE_CHARGE,
-      paymentReference: 'ref123',
-    });
-  });
-
-  it('should throw if user is not found', async () => {
-    mockUsersService.getUserById.mockResolvedValue(null);
-
-    await expect(
-      service.initiatePayment('invalid_user', {
-        vendorId: 'vendor1',
-        noOfGallons: 1,
-      }),
-    ).rejects.toThrow(HttpException);
-  });
-
-  it('should throw if axios fails', async () => {
-    mockUsersService.getUserById.mockResolvedValue({
-      id: 'user1',
-      email: 'test@example.com',
-      lodgeId: 'lodge1',
-    });
-    mockLodgePriceService.getLodgePrice.mockResolvedValue({
-      price: 500,
-      vendor: { subaccount: 'sub' },
+        });
+        expect(result).toEqual(mockResponse);
+      });
     });
 
-    mockedAxios.post.mockRejectedValue(HttpException);
+    describe('initiatePayment', () => {
+      const user = { email: 'test@example.com' };
+      const paymentDto = {
+        orderId: 'order1',
+        lodgeId: 'lodge1',
+        noOfGallons: 3,
+        subaccount: 'sub_123',
+      };
 
-    await expect(
-      service.initiatePayment('user1', {
-        vendorId: 'vendor1',
-        noOfGallons: 2,
-      }),
-    ).rejects.toThrow(HttpException);
+      it('should throw if location price is not found', async () => {
+        (
+          mockLodgesService.getLodgeLocationPrice as jest.Mock
+        ).mockResolvedValue(null);
+        await expect(
+          service.initiatePayment(user as any, paymentDto),
+        ).rejects.toThrow(BadRequestException);
+      });
+
+      it('should successfully initiate payment and create record', async () => {
+        const lodgePrice = 200;
+        const reference = 'ref123';
+
+        (
+          mockLodgesService.getLodgeLocationPrice as jest.Mock
+        ).mockResolvedValue(lodgePrice);
+        mockedAxios.post.mockResolvedValue({
+          data: {
+            data: { reference, authorization_url: 'http://paystack.com/pay' },
+          },
+        });
+        (mockPaymentModelAction.create as jest.Mock).mockResolvedValue({});
+
+        const result = await service.initiatePayment(user as any, paymentDto);
+        expect(result.data.reference).toBe(reference);
+        expect(mockPaymentModelAction.create).toHaveBeenCalled();
+      });
+
+      it('should throw and log error if API call fails', async () => {
+        (
+          mockLodgesService.getLodgeLocationPrice as jest.Mock
+        ).mockResolvedValue(100);
+        mockedAxios.post.mockRejectedValue(new Error('API error'));
+        const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+        await expect(
+          service.initiatePayment(user as any, paymentDto),
+        ).rejects.toThrow(HttpException);
+        expect(consoleSpy).toHaveBeenCalled();
+
+        consoleSpy.mockRestore();
+      });
+    });
+
+    describe('updatePaymentRecord', () => {
+      it('should update the payment record', async () => {
+        (mockPaymentModelAction.update as jest.Mock).mockResolvedValue({});
+        await expect(
+          service.updatePaymentRecord('order1', 'ref123', true),
+        ).resolves.not.toThrow();
+      });
+
+      it('should log error if update fails', async () => {
+        (mockPaymentModelAction.update as jest.Mock).mockRejectedValue(
+          new Error('DB error'),
+        );
+        const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+        await service.updatePaymentRecord('order1', 'ref123', true);
+        expect(consoleSpy).toHaveBeenCalled();
+
+        consoleSpy.mockRestore();
+      });
+    });
+
+    describe('computePaymentAmount', () => {
+      it('should return correct amount in kobo', () => {
+        const result = service.computePaymentAmount(200, 3);
+        expect(result).toBe((200 * 3 + SERVICE_CHARGE) * 100);
+      });
+    });
   });
 });

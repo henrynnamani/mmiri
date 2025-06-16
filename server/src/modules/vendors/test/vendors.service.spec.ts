@@ -39,6 +39,7 @@ describe('VendorsService', () => {
         accountNumber: '1234567890',
         role: Role.VENDOR,
         phoneNumber: '0987654321',
+        chatId: 3832,
       };
 
       (hashPassword as jest.Mock).mockResolvedValue('hashedPassword');
@@ -66,78 +67,44 @@ describe('VendorsService', () => {
       await expect(
         service.registerVendor({
           email: 'vendor@example.com',
-          password: '123456',
           businessName: 'Biz',
           bankCode: '001',
           accountNumber: '1234567890',
           role: Role.VENDOR,
           phoneNumber: '0987654321',
+          chatId: 3823,
         }),
       ).rejects.toThrow(BadRequestException);
     });
   });
 
-  describe('verifyVendor', () => {
-    it('should return vendor if credentials are valid', async () => {
-      const vendor = { email: 'test@example.com', password: 'hashed' };
-      mockVendorModelAction.get.mockResolvedValueOnce(vendor);
-      (verifyPassword as jest.Mock).mockResolvedValueOnce(true);
+  describe('changeAvailabilityStatus', () => {
+    it('should toggle vendor active status', async () => {
+      mockVendorModelAction.get
+        .mockResolvedValueOnce({ chatId: 123, isActive: false })
+        .mockResolvedValueOnce({ chatId: 123, isActive: true });
+      mockVendorModelAction.update.mockResolvedValueOnce({});
 
-      const result = await service.verifyVendor({
-        email: 'test@example.com',
-        password: 'plain',
-        role: Role.VENDOR,
-      });
-      expect(result).toEqual(vendor);
+      const result = await service.changeAvailabilityStatus(123);
+
+      expect(result.message).toBe(SYS_MSG.VENDOR_AVAILABILITY_UPDATED);
+      expect(result.data).toBeDefined();
     });
 
-    it('should throw NotFoundException if vendor not found', async () => {
+    it('should throw if vendor not found', async () => {
       mockVendorModelAction.get.mockResolvedValueOnce(null);
-      await expect(
-        service.verifyVendor({
-          email: 'test@example.com',
-          password: 'plain',
-          role: Role.VENDOR,
-        }),
-      ).rejects.toThrow(NotFoundException);
-    });
 
-    it('should throw BadRequestException if password invalid', async () => {
-      mockVendorModelAction.get.mockResolvedValueOnce({
-        email: 'test@example.com',
-        password: 'hashed',
-      });
-      (verifyPassword as jest.Mock).mockResolvedValueOnce(false);
-
-      await expect(
-        service.verifyVendor({
-          email: 'test@example.com',
-          password: 'wrong',
-          role: Role.VENDOR,
-        }),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.changeAvailabilityStatus(999)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
-  describe('addServingLocation', () => {
-    it('should add a location to a vendor', async () => {
-      const vendor = { id: 'v1' };
-      const location = { id: 'l1' };
-
-      mockVendorModelAction.get.mockResolvedValueOnce(vendor);
-      mockLocationsService.findLocationById.mockResolvedValueOnce(location);
-      mockVendorLocationService.addServingLocation.mockResolvedValueOnce({
-        id: 'r1',
-        vendor,
-        location,
-      });
-
-      const result = await service.addServingLocation('v1', 'l1');
-
-      expect(result).toEqual({
-        message: SYS_MSG.VENDOR_SERVING_LOCATION_UPDATED,
-        data: { id: 'r1', vendor, location },
-      });
+  describe('getVendorByEmail', () => {
+    it('should get vendor by email', async () => {
+      mockVendorModelAction.get.mockResolvedValueOnce({ id: 'v1' });
+      const result = await service.getVendorByEmail('test@example.com');
+      expect(result).toEqual({ id: 'v1' });
     });
   });
 });
