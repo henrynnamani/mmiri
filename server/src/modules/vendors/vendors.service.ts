@@ -18,8 +18,6 @@ import { VendorRegisterDto } from './dto/vendor.dto';
 export class VendorsService {
   constructor(
     private vendorModelAction: VendorModelAction,
-    private locationsService: LocationsService,
-    private vendorLocationService: VendorLocationsService,
     private config: ConfigService,
   ) {}
 
@@ -64,7 +62,6 @@ export class VendorsService {
       getRecordIdentifierOption: { email },
     });
   }
-
 
   getVendorByChatId(chatId: number) {
     return this.vendorModelAction.get({
