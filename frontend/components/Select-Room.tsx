@@ -1,10 +1,3 @@
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-  } from "@/components/ui/select"
 import { Input } from "./ui/input"
 
 
@@ -16,7 +9,6 @@ const SelectRoom = () => {
            {/*  */}
            <span className="text-sm text-gray-400">Number of Gallon: </span>
            <Input type="number" placeholder="e.g 10" />
-          
           </div>
   )
 }

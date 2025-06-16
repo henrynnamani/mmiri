@@ -15,14 +15,14 @@ import {
   ModalTrigger,
 } from "@/components/ui/animated-modal";
 import { motion } from "motion/react";
-import { GlassWater, PlaneIcon } from "lucide-react";
-import SelectRoom from "./Select-Room";
+import { GlassWater } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import api from "@/constants";
 import useSWR from "swr";
 import { Input } from "./ui/input";
 import useOrderStore from "@/store/order";
+import { Location, Lodge } from "@/types";
 
 const images = [
   "https://images.unsplash.com/photo-1517322048670-4fba75cbbb62?q=80&w=3000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -34,10 +34,15 @@ const images = [
 
 const SelectLocation = () => {
   const router = useRouter();
-  const [lodges, setLodges] = useState<any>();
+  const [lodges, setLodges] = useState<Lodge[]>();
   const { data } = useSWR("locations");
-  const [orderDetail, setOrderDetail] = useState({
-    location: "",
+  const [orderDetail, setOrderDetail] = useState<{
+    location?: Partial<Location>;
+    lodgeId: string;
+    roomNumber: string;
+    noOfGallon: string;
+  }>({
+    location: {},
     lodgeId: "",
     roomNumber: "",
     noOfGallon: "",
@@ -51,17 +56,15 @@ const SelectLocation = () => {
 
   useEffect(() => {
     const getLodges = async () => {
-      const response = await api.get(
-        `locations/${orderDetail?.location.id}/lodges`
-      );
-      console.log(response);
+      const locationId = orderDetail?.location && orderDetail.location.id;
+      const response = await api.get(`locations/${locationId}/lodges`);
       setLodges(response.data.data.lodges);
     };
 
     if (orderDetail) {
       getLodges();
     }
-  }, [orderDetail.location]);
+  }, [orderDetail.location, orderDetail]);
 
   return (
     <div className="flex flex-col gap-5 border p-10 rounded-lg w-[90vw] md:w-[400px]">
@@ -70,7 +73,7 @@ const SelectLocation = () => {
         onValueChange={(value) =>
           setOrderDetail({
             ...orderDetail,
-            location: value,
+            location: JSON.parse(value) as Location,
           })
         }
       >
@@ -78,8 +81,10 @@ const SelectLocation = () => {
           <SelectValue placeholder="Pick location" />
         </SelectTrigger>
         <SelectContent>
-          {data?.data.payload.map((location) => (
-            <SelectItem value={location}>{location.name}</SelectItem>
+          {data?.data.payload.map((location: Location) => (
+            <SelectItem key={location.id} value={JSON.stringify(location)}>
+              {location.name}
+            </SelectItem>
           ))}
         </SelectContent>
       </Select>
@@ -96,8 +101,10 @@ const SelectLocation = () => {
           <SelectValue placeholder="Pick lodge" />
         </SelectTrigger>
         <SelectContent>
-          {lodges?.map((lodge: any) => (
-            <SelectItem value={lodge.id}>{lodge.name}</SelectItem>
+          {lodges?.map((lodge: Lodge) => (
+            <SelectItem key={lodge.id} value={lodge.id}>
+              {lodge.name}
+            </SelectItem>
           ))}
         </SelectContent>
       </Select>

@@ -2,10 +2,9 @@
 
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { CookiesProvider, useCookies } from "react-cookie";
+import { CookiesProvider } from "react-cookie";
 import { SWRConfig } from 'swr'
 import api from "@/constants";
-import { useEffect } from "react";
 
 const fetcher = (url: string) => api.get(url).then(res => res.data);
 

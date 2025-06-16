@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useCookies } from "react-cookie";
 
 const useAuthCleanup = () => {
-  const [cookies, setCookie, removeCookie] = useCookies(["access_token"]);
+  const [cookies, removeCookie] = useCookies(["access_token"]);
 
   useEffect(() => {
     const token = cookies.access_token;
@@ -21,7 +21,7 @@ const useAuthCleanup = () => {
       console.error("Invalid token:", e);
       removeCookie("access_token", { path: "/" });
     }
-  }, [cookies.access_token]);
+  }, [cookies.access_token, removeCookie]);
 };
 
-export default useAuthCleanup
+export default useAuthCleanup;

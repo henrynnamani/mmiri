@@ -1,7 +1,6 @@
 "use client";
 
-import { GalleryVerticalEnd, GlassWater } from "lucide-react";
-import { LoginForm } from "@/components/login-form";
+import { GlassWater } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,16 +18,18 @@ import { useRouter } from "next/navigation";
 import api from "@/constants";
 import { useCookies } from "react-cookie";
 
-export default function page() {
+export default function LoginPage() {
   const [userDetail, setUserDetail] = useState({
     email: "",
     password: "",
     role: "user",
   });
   const router = useRouter();
-  const [_, setCookie] = useCookies(["access_token"]);
+  const [, setCookie] = useCookies(["access_token"]);
 
-  const handleRegister = async (e: any) => {
+  const handleRegister = async (
+    e: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
     try {
       await api.post("/auths/signin", userDetail).then((res) => {
@@ -41,7 +42,7 @@ export default function page() {
       });
 
       router.push("/");
-    } catch (err) {
+    } catch {
       toast("Error logging In", {
         position: "top-center",
       });
@@ -113,7 +114,7 @@ export default function page() {
                     </Button>
                   </div>
                   <div className="text-center text-sm">
-                    Don't have an account?{" "}
+                    Don&apos;t have an account?
                     <button
                       onClick={() => router.push("/auth/register")}
                       className="underline underline-offset-4"

@@ -1,9 +1,16 @@
 import { TypingAnimation } from "@/components/magicui/typing-animation";
 import { GlowingEffect } from "./ui/glowing-effect";
 import { Bike, LocateIcon, ShoppingBagIcon } from "lucide-react";
+import { ReactNode } from "react";
 
+interface GridItemI {
+  area: string;
+  icon: ReactNode;
+  title: string;
+  description: string;
+}
 
-const GridItem = ({ area, icon, title, description }: any) => {
+const GridItem = ({ area, icon, title, description }: GridItemI) => {
   return (
     <li className={`list-none ${area}`}>
       <div className="relative h-full rounded-2xl border p-2 md:rounded-3xl md:p-3">
@@ -36,27 +43,35 @@ const GridItem = ({ area, icon, title, description }: any) => {
 
 const Feature = () => {
   return (
-    <div className='w-full pt-40 -mb-36 text-center gap-5 flex flex-col'>
-        <div className='flex flex-col'>  
-            <span className="md:text-4xl text-xl font-semibold md:font-medium">Odogwu <span className="">et</span> Achalugo</span>
-              <TypingAnimation className="md:text-lg text-md font-medium md:font-semibold">Maintain your steeze while we handle your water need.</TypingAnimation>
-        </div>
-        <div className="w-full">
+    <div className="w-full pt-40 -mb-36 text-center gap-5 flex flex-col">
+      <div className="flex flex-col">
+        <span className="md:text-4xl text-xl font-semibold md:font-medium">
+          Odogwu <span className="">et</span> Achalugo
+        </span>
+        <TypingAnimation className="md:text-lg text-md font-medium md:font-semibold">
+          Maintain your steeze while we handle your water need.
+        </TypingAnimation>
+      </div>
+      <div className="w-full">
         <ul className="grid grid-cols-1 grid-rows-none gap-4 md:grid-cols-12 md:grid-rows-3 lg:gap-4 xl:grid-rows-2">
           <GridItem
             area="md:[grid-area:1/1/2/7] xl:[grid-area:1/1/2/5]"
-            icon={<LocateIcon className="h-4 w-4 text-black dark:text-neutral-400" />}
+            icon={
+              <LocateIcon className="h-4 w-4 text-black dark:text-neutral-400" />
+            }
             title="Location"
             description="Simply input your location detail."
           />
- 
+
           <GridItem
             area="md:[grid-area:1/1/3/7] xl:[grid-area:1/5/2/8]"
-            icon={<ShoppingBagIcon className="h-4 w-4 text-black dark:text-neutral-400" />}
+            icon={
+              <ShoppingBagIcon className="h-4 w-4 text-black dark:text-neutral-400" />
+            }
             title="Order"
             description="Place your order for n amount of gallons."
           />
- 
+
           <GridItem
             area="md:[grid-area:2/7/3/13] xl:[grid-area:1/8/2/13]"
             icon={<Bike className="h-4 w-4 text-black dark:text-neutral-400" />}
@@ -64,9 +79,9 @@ const Feature = () => {
             description="We promise to deliver to you in 10 minutes."
           />
         </ul>
-        </div>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default Feature
+export default Feature;

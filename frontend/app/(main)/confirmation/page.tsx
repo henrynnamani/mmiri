@@ -1,11 +1,10 @@
 'use client'
 
-import CustomButton from "@/components/CustomButton";
 import { Confetti, type ConfettiRef } from "@/components/magicui/confetti";
 import { useEffect, useRef } from 'react'
 import { useRouter } from "next/navigation";
 
-const page = () => {
+const Confirmation = () => {
     const confettiRef = useRef<ConfettiRef>(null);
     const router = useRouter()
 
@@ -15,7 +14,7 @@ const page = () => {
         }, 2000)
 
         return () => clearTimeout(timeout)
-    }, [])
+    }, [router])
 
   return (
     <>
@@ -33,4 +32,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Confirmation
