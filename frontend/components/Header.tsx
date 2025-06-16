@@ -1,6 +1,6 @@
 "use client";
 
-import { AlignJustify, GlassWater, Link2Icon, X } from "lucide-react";
+import { AlignJustify, GlassWater, X } from "lucide-react";
 import CustomButton from "./CustomButton";
 import { useState } from "react";
 import { useRouter } from "next/navigation";

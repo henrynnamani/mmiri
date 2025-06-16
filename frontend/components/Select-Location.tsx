@@ -15,8 +15,7 @@ import {
   ModalTrigger,
 } from "@/components/ui/animated-modal";
 import { motion } from "motion/react";
-import { GlassWater, PlaneIcon } from "lucide-react";
-import SelectRoom from "./Select-Room";
+import { GlassWater } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import api from "@/constants";

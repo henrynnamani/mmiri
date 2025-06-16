@@ -1,7 +1,6 @@
 "use client";
 
-import { GalleryVerticalEnd, GlassWater } from "lucide-react";
-import { LoginForm } from "@/components/login-form";
+import { GlassWater } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,7 +18,7 @@ import { useRouter } from "next/navigation";
 import api from "@/constants";
 import { useCookies } from "react-cookie";
 
-export default function page() {
+export default function LoginPage() {
   const [userDetail, setUserDetail] = useState({
     email: "",
     password: "",

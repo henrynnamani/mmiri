@@ -3,12 +3,10 @@
 import CustomButton from '@/components/CustomButton'
 import api from '@/constants'
 import useOrderStore from '@/store/order'
-import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-const page = () => {
-  const router = useRouter()
+const Summary = () => {
   const { orderDetail } = useOrderStore()
   const SERVICE_CHARGE = 100;
   const [totalAmount, setTotalAmount] = useState(0)
@@ -28,7 +26,7 @@ const page = () => {
       const response = await api.post('orders', orderPayload)
 
       window.open(response.data?.data?.data.authorization_url, '_blank')
-    } catch(err) {
+    } catch {
       toast("Payment Initiation Error", {
         position: 'top-center'
       })
@@ -61,4 +59,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Summary

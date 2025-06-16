@@ -2,7 +2,14 @@ import { BaseEntity } from '@modules/common/base-entity.model';
 import { Role } from '@modules/common/enums';
 import { Lodge } from '@modules/lodges/model/lodges.model';
 import { Order } from '@modules/order/model/order.model';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
 
 @Entity('users')
 export class User extends BaseEntity {
