@@ -19,7 +19,7 @@ import api from "@/constants";
 import { useCookies } from "react-cookie";
 
 export default function RegisterPage() {
-  const [_, setCookie] = useCookies(["access_token"]);
+  const [, setCookie] = useCookies(["access_token"]);
   const [userDetail, setUserDetail] = useState({
     email: "",
     password: "",
@@ -27,7 +27,9 @@ export default function RegisterPage() {
   });
   const router = useRouter();
 
-  const handleRegister = async (e: any) => {
+  const handleRegister = async (
+    e: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
     try {
       await api.post("/auths/signup", userDetail).then((res) => {

@@ -40,7 +40,7 @@ const App: React.FC = () => {
           router.push("/");
         }, 4000);
     }
-  }, [userOrder?.data?.payload[0].status]);
+  }, [router, userOrder?.data?.payload]);
   const description = "This is a description.";
 
   return (

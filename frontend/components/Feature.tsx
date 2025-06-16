@@ -1,8 +1,16 @@
 import { TypingAnimation } from "@/components/magicui/typing-animation";
 import { GlowingEffect } from "./ui/glowing-effect";
 import { Bike, LocateIcon, ShoppingBagIcon } from "lucide-react";
+import { ReactNode } from "react";
 
-const GridItem = ({ area, icon, title, description }) => {
+interface GridItemI {
+  area: string;
+  icon: ReactNode;
+  title: string;
+  description: string;
+}
+
+const GridItem = ({ area, icon, title, description }: GridItemI) => {
   return (
     <li className={`list-none ${area}`}>
       <div className="relative h-full rounded-2xl border p-2 md:rounded-3xl md:p-3">

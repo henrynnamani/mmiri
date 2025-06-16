@@ -17,8 +17,6 @@ import React, {
   useRef,
 } from "react";
 
-import { Button, ButtonProps } from "@/components/ui/button";
-
 type Api = {
   fire: (options?: ConfettiOptions) => void;
 };
@@ -60,7 +58,7 @@ const ConfettiComponent = forwardRef<ConfettiRef, Props>((props, ref) => {
         }
       }
     },
-    [globalOptions],
+    [globalOptions]
   );
 
   const fire = useCallback(
@@ -71,14 +69,14 @@ const ConfettiComponent = forwardRef<ConfettiRef, Props>((props, ref) => {
         console.error("Confetti error:", error);
       }
     },
-    [options],
+    [options]
   );
 
   const api = useMemo(
     () => ({
       fire,
     }),
-    [fire],
+    [fire]
   );
 
   useImperativeHandle(ref, () => api, [api]);
@@ -109,41 +107,35 @@ ConfettiComponent.displayName = "Confetti";
 // Export as Confetti
 export const Confetti = ConfettiComponent;
 
-interface ConfettiButtonProps extends ButtonProps {
-  options?: ConfettiOptions &
-    ConfettiGlobalOptions & { canvas?: HTMLCanvasElement };
-  children?: React.ReactNode;
-}
+// const ConfettiButtonComponent = ({
+//   options,
+//   children,
+//   ...props
+// }: ConfettiButtonProps) => {
+//   const handleClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
+//     try {
+//       const rect = event.currentTarget.getBoundingClientRect();
+//       const x = rect.left + rect.width / 2;
+//       const y = rect.top + rect.height / 2;
+//       await confetti({
+//         ...options,
+//         origin: {
+//           x: x / window.innerWidth,
+//           y: y / window.innerHeight,
+//         },
+//       });
+//     } catch (error) {
+//       console.error("Confetti button error:", error);
+//     }
+//   };
 
-const ConfettiButtonComponent = ({
-  options,
-  children,
-  ...props
-}: ConfettiButtonProps) => {
-  const handleClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    try {
-      const rect = event.currentTarget.getBoundingClientRect();
-      const x = rect.left + rect.width / 2;
-      const y = rect.top + rect.height / 2;
-      await confetti({
-        ...options,
-        origin: {
-          x: x / window.innerWidth,
-          y: y / window.innerHeight,
-        },
-      });
-    } catch (error) {
-      console.error("Confetti button error:", error);
-    }
-  };
+//   return (
+//     <Button onClick={handleClick} {...props}>
+//       {children}
+//     </Button>
+//   );
+// };
 
-  return (
-    <Button onClick={handleClick} {...props}>
-      {children}
-    </Button>
-  );
-};
+// ConfettiButtonComponent.displayName = "ConfettiButton";
 
-ConfettiButtonComponent.displayName = "ConfettiButton";
-
-export const ConfettiButton = ConfettiButtonComponent;
+// export const ConfettiButton = ConfettiButtonComponent;
