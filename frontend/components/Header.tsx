@@ -1,10 +1,11 @@
 "use client";
 
-import { AlignJustify, GlassWater, X } from "lucide-react";
+import { AlignJustify, GlassWater, Link2Icon, X } from "lucide-react";
 import CustomButton from "./CustomButton";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCookies } from "react-cookie";
+import Link from "next/link";
 
 const Header = () => {
   const router = useRouter();
@@ -12,15 +13,15 @@ const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="flex justify-between items-center sticky top-0 bg-white p-4 border rounded-full px-10 md:m-10 m-4">
-      <div className="flex gap-2 items-center">
+    <div className="flex justify-between items-center sticky top-0 bg-white p-4 border rounded-full px-10 md:m-10 m-4 z-40">
+      <Link href={"/"} className="flex gap-2 items-center">
         <GlassWater size={20} />
         <span className="font-semibold text-lg">Mmiri</span>
-      </div>
+      </Link>
       <div className="md:flex gap-10 hidden">
-        <span>Home</span>
-        <span>About us</span>
-        <span>Contact</span>
+        <Link href={"/"}>Home</Link>
+        <Link href={"/about"}>About us</Link>
+        <Link href={"/contact"}>Contact</Link>
       </div>
 
       <div className="hidden md:flex">
@@ -49,9 +50,33 @@ const Header = () => {
   `}
       >
         <div className="flex flex-col p-6 space-y-6 pt-20 ">
-          <span onClick={() => setMenuOpen(false)}>Home</span>
-          <span onClick={() => setMenuOpen(false)}>About us</span>
-          <span onClick={() => setMenuOpen(false)}>Contact</span>
+          <button
+            className="flex justify-start"
+            onClick={() => {
+              setMenuOpen(false)
+              router.push('/')
+            }}
+          >
+            Home
+          </button>
+          <button
+            className="flex justify-start"
+           onClick={() => {
+              setMenuOpen(false)
+              router.push('/about')
+            }}
+          >
+            About us
+          </button>
+          <button
+            className="flex justify-start"
+           onClick={() => {
+              setMenuOpen(false)
+              router.push('/contact')
+            }}
+          >
+            Contact
+          </button>
           {cookie?.access_token ? (
             <CustomButton label="My Order" />
           ) : (

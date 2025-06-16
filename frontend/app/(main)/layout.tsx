@@ -37,7 +37,9 @@ export default function RootLayout({
   return (
     <>
       <Header />
-      {children}
+      <div className='-z-40'>
+        {children}
+      </div>
     </>
   );
 }

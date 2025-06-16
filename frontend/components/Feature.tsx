@@ -1,7 +1,6 @@
 import { TypingAnimation } from "@/components/magicui/typing-animation";
-import { DeliveryBag, DeliveryTruck, ShoppingBag } from "@/constants/images";
 import { GlowingEffect } from "./ui/glowing-effect";
-import { Bike, Box, LocateIcon, LocationEdit, Lock, Search, Settings, ShoppingBagIcon, Sparkles } from "lucide-react";
+import { Bike, LocateIcon, ShoppingBagIcon } from "lucide-react";
 
 
 const GridItem = ({ area, icon, title, description }: any) => {
@@ -39,8 +38,8 @@ const Feature = () => {
   return (
     <div className='w-full pt-40 -mb-36 text-center gap-5 flex flex-col'>
         <div className='flex flex-col'>  
-            <span className="text-4xl font-medium">Odogwu <span className="">et</span> Achalugo</span>
-            <TypingAnimation style={{ fontSize: 20, fontStyle: 'normal', fontWeight: 400 }}>Maintain your steeze while we handle your water need.</TypingAnimation>
+            <span className="md:text-4xl text-xl font-semibold md:font-medium">Odogwu <span className="">et</span> Achalugo</span>
+              <TypingAnimation className="md:text-lg text-md font-medium md:font-semibold">Maintain your steeze while we handle your water need.</TypingAnimation>
         </div>
         <div className="w-full">
         <ul className="grid grid-cols-1 grid-rows-none gap-4 md:grid-cols-12 md:grid-rows-3 lg:gap-4 xl:grid-rows-2">
