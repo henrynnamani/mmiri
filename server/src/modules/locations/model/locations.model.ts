@@ -17,4 +17,7 @@ export class Location extends BaseEntity {
 
   @OneToMany(() => Lodge, (lodge) => lodge.location)
   lodges: Lodge[];
+
+  @Column({ default: 0 })
+  price: number;
 }

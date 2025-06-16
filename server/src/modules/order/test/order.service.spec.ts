@@ -1,6 +1,8 @@
 import { TestingModule } from '@nestjs/testing';
 import {
+  mockLodgePriceModelAction,
   mockOrderModelAction,
+  mockPaymentService,
   mockUsersService,
   mockVendorsService,
   testingModule,
@@ -14,6 +16,7 @@ import {
   mockUser,
   mockVendor,
 } from './mock.test';
+import { OrderStatus } from '@modules/common/enums';
 
 describe('OrderService', () => {
   let service: OrderService;
@@ -31,113 +34,145 @@ describe('OrderService', () => {
   });
 
   describe('placeOrder', () => {
-    it('should throw if vendor is not found', async () => {
-      mockVendorsService.getVendorById.mockResolvedValue(null);
-
-      await expect(service.placeOrder(mockPlaceOrderDto)).rejects.toThrow(
-        new NotFoundException(SYS_MSG.VENDOR_NOT_FOUND),
-      );
+    it('should throw if user not found', async () => {
+      (mockUsersService.getUserById as jest.Mock).mockResolvedValue(null);
+      await expect(
+        service.placeOrder('user-id', {
+          noOfGallons: 5,
+          roomNumber: '101',
+          lodgeId: 'lodge1',
+        }),
+      ).rejects.toThrow(NotFoundException);
     });
 
-    it('should throw if user is not found', async () => {
-      mockVendorsService.getVendorById.mockResolvedValue(mockVendor);
-      mockUsersService.getUserById.mockResolvedValue(null);
+    it('should create order and assign vendor', async () => {
+      const user = { id: 'user-id' };
+      const order = { id: 'order-id' };
+      const vendor = { id: 'vendor-id', subaccount: 'acct_123' };
 
-      await expect(service.placeOrder(mockPlaceOrderDto)).rejects.toThrow(
-        new NotFoundException(SYS_MSG.USER_NOT_FOUND),
-      );
-    });
+      (mockUsersService.getUserById as jest.Mock).mockResolvedValue(user);
+      (mockOrderModelAction.create as jest.Mock).mockResolvedValue(order);
+      (
+        mockLodgePriceModelAction.findAvailableVendorsByLodge as jest.Mock
+      ).mockResolvedValue([vendor]);
+      (mockOrderModelAction.update as jest.Mock).mockResolvedValue({});
+      (mockPaymentService.initiatePayment as jest.Mock).mockResolvedValue({
+        checkoutUrl: 'paylink.com',
+      });
 
-    it('should place order successfully', async () => {
-      mockVendorsService.getVendorById.mockResolvedValue(mockVendor);
-      mockUsersService.getUserById.mockResolvedValue(mockUser);
-      mockOrderModelAction.create.mockResolvedValue(mockOrder);
-
-      const result = await service.placeOrder(mockPlaceOrderDto);
+      const result = await service.placeOrder('user-id', {
+        noOfGallons: 5,
+        roomNumber: '101',
+        lodgeId: 'lodge1',
+      });
 
       expect(result.message).toBe(SYS_MSG.ORDER_PLACED_SUCCESSFULLY);
-      expect(result.data).toEqual(mockOrder);
+      expect(result.data.checkoutUrl).toBeDefined();
+    });
+
+    it('should create order without assigning vendor if no vendor found', async () => {
+      const user = { id: 'user-id' };
+      const order = { id: 'order-id' };
+
+      (mockUsersService.getUserById as jest.Mock).mockResolvedValue(user);
+      (mockOrderModelAction.create as jest.Mock).mockResolvedValue(order);
+      (
+        mockLodgePriceModelAction.findAvailableVendorsByLodge as jest.Mock
+      ).mockResolvedValue(null);
+      (mockPaymentService.initiatePayment as jest.Mock).mockResolvedValue({
+        checkoutUrl: 'paylink.com',
+      });
+
+      const result = await service.placeOrder('user-id', {
+        noOfGallons: 5,
+        roomNumber: '101',
+        lodgeId: 'lodge1',
+      });
+
+      expect(result.data.checkoutUrl).toBeDefined();
     });
   });
 
   describe('getOrderByReference', () => {
-    it('should return order if found', async () => {
-      mockOrderModelAction.get.mockResolvedValue(mockOrder);
-
-      const result = await service.getOrderByReference('ref-123');
-      expect(result).toEqual(mockOrder);
+    it('should return order by reference', async () => {
+      (mockOrderModelAction.get as jest.Mock).mockResolvedValue({
+        id: 'order1',
+      });
+      const result = await service.getOrderByReference('ref123');
+      expect(result!.id).toBe('order1');
     });
   });
 
-  describe('updateOrderStatus', () => {
-    it('should throw if order does not exist', async () => {
-      mockOrderModelAction.get.mockResolvedValueOnce(null);
-
-      await expect(service.updateOrderStatus('ref-123', true)).rejects.toThrow(
-        new NotFoundException(SYS_MSG.ORDER_NOT_FOUND),
-      );
-    });
-
-    it('should throw if status was not updated', async () => {
-      mockOrderModelAction.get.mockResolvedValueOnce(mockOrder);
-
-      mockOrderModelAction.update.mockResolvedValue({ ...mockOrder });
-
-      mockOrderModelAction.get.mockResolvedValueOnce({
-        ...mockOrder,
-        paymentStatus: false,
+  describe('getOrderById', () => {
+    it('should return order by ID with relations', async () => {
+      (mockOrderModelAction.get as jest.Mock).mockResolvedValue({
+        id: 'order2',
       });
-
-      await expect(service.updateOrderStatus('ref-123', true)).rejects.toThrow(
-        new BadRequestException(SYS_MSG.ORDER_STATUS_NOT_UPDATED),
-      );
-    });
-
-    it('should update order status successfully if updated', async () => {
-      mockOrderModelAction.get.mockResolvedValueOnce(mockOrder);
-
-      mockOrderModelAction.update.mockResolvedValue({
-        ...mockOrder,
-        paymentStatus: true,
-      });
-
-      mockOrderModelAction.get.mockResolvedValueOnce({
-        ...mockOrder,
-        paymentStatus: true,
-      });
-
-      const result = await service.updateOrderStatus('ref-123', true);
-
-      expect(result.message).toBe(SYS_MSG.ORDER_STATUS_UPDATED_SUCCESSFULLY);
-      expect(result.data.paymentStatus).toBe(true);
+      const result = await service.getOrderById('order2');
+      expect(result!.id).toBe('order2');
     });
   });
 
   describe('getUserOrders', () => {
-    it('should list user orders', async () => {
-      const mockList = { data: [], meta: { total: 0 } };
-      mockOrderModelAction.list.mockResolvedValue(mockList);
-
-      const result = await service.getUserOrders('user-id', {
-        page: 1,
-        limit: 10,
-      });
-
-      expect(result).toEqual(mockList);
+    it('should return user orders', async () => {
+      (mockOrderModelAction.list as jest.Mock).mockResolvedValue([
+        { id: 'order1' },
+      ]);
+      const result = await service.getUserOrders('user-id');
+      expect(result).toHaveLength(1);
     });
   });
 
   describe('getVendorOrders', () => {
-    it('should list vendor orders', async () => {
-      const mockList = { data: [], meta: { total: 0 } };
-      mockOrderModelAction.list.mockResolvedValue(mockList);
-
+    it('should return vendor orders', async () => {
+      (mockOrderModelAction.list as jest.Mock).mockResolvedValue([
+        { id: 'order1' },
+      ]);
       const result = await service.getVendorOrders('vendor-id', {
         page: 1,
         limit: 10,
       });
+      expect(result[0].id).toBe('order1');
+    });
+  });
 
-      expect(result).toEqual(mockList);
+  describe('assignVendorToOrder', () => {
+    it('should assign vendor to order', async () => {
+      (mockOrderModelAction.update as jest.Mock).mockResolvedValue({
+        id: 'order-id',
+      });
+      const result = await service.assignVendorToOrder('order-id', 'vendor-id');
+      expect(result!.data).toBeDefined();
+    });
+  });
+
+  describe('updateOrderStatus', () => {
+    it('should skip update if status is the same', async () => {
+      (mockOrderModelAction.get as jest.Mock).mockResolvedValue({
+        id: 'order1',
+        status: OrderStatus.PENDING,
+      });
+      const result = await service.updateOrderStatus(
+        'order1',
+        OrderStatus.PENDING,
+      );
+      expect(result).toBe(false);
+    });
+
+    it('should update order status if different', async () => {
+      (mockOrderModelAction.get as jest.Mock).mockResolvedValue({
+        id: 'order1',
+        status: OrderStatus.ASSIGNED,
+      });
+      (mockOrderModelAction.update as jest.Mock).mockResolvedValue({
+        id: 'order1',
+        status: OrderStatus.COMPLETED,
+      });
+      const result = await service.updateOrderStatus(
+        'order1',
+        OrderStatus.COMPLETED,
+      );
+      expect(result).toBe(true);
     });
   });
 });

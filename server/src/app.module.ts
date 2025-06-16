@@ -21,6 +21,9 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthenticationGuard } from './modules/auths/guards/authentication.guard';
 import { dataSource } from '@database/datasource';
 import { paymentConfig } from '@config/payment.config';
+import { TelegramModule } from '@modules/telegram/telegram.module';
+import { telegramConfig } from '@config/telegram.config';
+import { queueConfig } from '@config/queue.config';
 
 @Module({
   imports: [
@@ -36,7 +39,7 @@ import { paymentConfig } from '@config/payment.config';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [authConfig, paymentConfig],
+      load: [authConfig, paymentConfig, telegramConfig, queueConfig],
       cache: true,
     }),
     TypeOrmModule.forRootAsync({
@@ -62,6 +65,7 @@ import { paymentConfig } from '@config/payment.config';
     OrderModule,
     VendorLocationsModule,
     PaymentModule,
+    TelegramModule,
   ],
   controllers: [AppController],
   providers: [

@@ -11,6 +11,19 @@ async function bootstrap() {
 
   app.use('/webhook', bodyParser.raw({ type: 'application/json' }));
 
+  app.enableCors({
+    origin: (origin, callback) => {
+      const allowedOrigin = ['http://localhost:3000', 'http://localhost:3001'];
+
+      if (!origin || allowedOrigin.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: 'GET,POST,PUT',
+  });
+
   app.setGlobalPrefix('api/v1');
 
   const config = new DocumentBuilder()

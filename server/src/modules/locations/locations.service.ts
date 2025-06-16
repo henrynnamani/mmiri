@@ -25,8 +25,9 @@ export class LocationsService {
       const locationPromises = locationDto.locations.map((location) =>
         this.locationModelAction.create({
           createPayload: {
-            name: location,
+            name: location.name,
             university: university,
+            price: location.price
           },
           transactionOptions: {
             useTransaction: true,
@@ -42,6 +43,26 @@ export class LocationsService {
       data: locations,
       message: 'Locations created successfully',
     };
+  }
+
+  async getLocationPrice(id: string) {
+    const location = await this.locationModelAction.get({
+      getRecordIdentifierOption: { id }
+    })
+
+    if(!location) return
+
+    return location.price
+  }
+
+  async getLocations() {
+    return this.locationModelAction.list({
+      pagination: {
+        limit: 5,
+        page: 1,
+      },
+      relations: ['lodges'],
+    });
   }
 
   async findLocationById(id: string) {

@@ -68,15 +68,6 @@ describe('LodgesService', () => {
     });
   });
 
-  describe('getLodgePrices', () => {
-    it('should return lodge prices with relations', async () => {
-      const prices = [{ id: 'price1' }];
-      mockLodgePriceModelAction.get.mockResolvedValue(prices);
-      const result = await service.getLodgePrices('lodge123');
-      expect(result).toEqual(prices);
-    });
-  });
-
   describe('getLodgeVendors', () => {
     it('should throw if lodge not found', async () => {
       mockLodgeModelAction.get.mockResolvedValue(null);

@@ -7,9 +7,9 @@ export class LodgePriceDto {
     example: '123e4567-e89b-12d3-a456-426614174000',
     required: true,
   })
-  @IsString()
+  @IsNumber()
   @IsUUID('all')
-  vendorId: string;
+  chatId: number;
 
   @ApiProperty({
     description: 'Lodge ID',
@@ -19,15 +19,6 @@ export class LodgePriceDto {
   @IsString()
   @IsUUID()
   lodgeId: string;
-
-  @ApiProperty({
-    description: 'Price',
-    example: 100,
-    required: true,
-  })
-  @IsNumber()
-  @IsNotEmpty()
-  price: number;
 }
 
 export class UpdateChargeDto {

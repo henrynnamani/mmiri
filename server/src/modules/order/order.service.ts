@@ -1,5 +1,6 @@
 import {
-  BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -8,9 +9,13 @@ import { VendorsService } from '@modules/vendors/vendors.service';
 import * as SYS_MSG from '@modules/common/system-message';
 import { OrderModelAction } from './model/order.model-action';
 import { UsersService } from '@modules/users/users.service';
-// import { LodgePriceService } from '@modules/lodge_price/lodge_price.service';
 import { PaginationMeta } from '@modules/common/types/list-record.type';
 import { OrderStatus } from '@modules/common/enums';
+import { TelegramService } from '@modules/telegram/telegram.service';
+import { PaymentService } from '@modules/payment/payment.service';
+import { LodgePriceModelAction } from '@modules/lodge_price/model/lodge_price.model-action';
+import { Vendor } from '@modules/vendors/model/vendors.model';
+import { Not } from 'typeorm';
 
 @Injectable()
 export class OrderService {
@@ -18,19 +23,15 @@ export class OrderService {
     private orderModelAction: OrderModelAction,
     private usersService: UsersService,
     private vendorsService: VendorsService,
-    // private lodgePriceService: LodgePriceService,
+    @Inject(forwardRef(() => TelegramService))
+    private telegramService: TelegramService,
+    @Inject(forwardRef(() => PaymentService))
+    private paymentService: PaymentService,
+    private lodgePriceModelAction: LodgePriceModelAction,
   ) {}
 
-  async placeOrder(orderDto: OrderDto) {
-    const vendorExist = await this.vendorsService.getVendorById(
-      orderDto.vendorId,
-    );
-
-    if (!vendorExist) {
-      throw new NotFoundException(SYS_MSG.VENDOR_NOT_FOUND);
-    }
-
-    const userExist = await this.usersService.getUserById(orderDto.userId);
+  async placeOrder(loggedInUserId: string, orderDto: OrderDto) {
+    const userExist = await this.usersService.getUserById(loggedInUserId);
 
     if (!userExist) {
       throw new NotFoundException(SYS_MSG.USER_NOT_FOUND);
@@ -38,19 +39,46 @@ export class OrderService {
 
     const order = await this.orderModelAction.create({
       createPayload: {
-        amountPayed: orderDto.totalAmount,
         noOfGallons: orderDto.noOfGallons,
-        vendor: vendorExist,
+        roomNumber: orderDto.roomNumber,
         user: userExist,
-        paymentReference: orderDto.paymentReference,
       },
       transactionOptions: {
         useTransaction: false,
       },
     });
 
+    const vendors: Vendor[] =
+      await this.lodgePriceModelAction.findAvailableVendorsByLodge(
+        orderDto.lodgeId,
+      );
+
+    if (!vendors) {
+      const response = await this.paymentService.initiatePayment(userExist, {
+        noOfGallons: orderDto.noOfGallons,
+        orderId: order.id,
+        lodgeId: orderDto.lodgeId,
+      });
+      return {
+        data: response,
+        message: SYS_MSG.ORDER_PLACED_SUCCESSFULLY,
+      };
+    }
+
+    const selectedVendor = vendors[0];
+
+    await this.assignVendorToOrder(order?.id, selectedVendor.id);
+
+    // initiate payment with orderId
+    const response = await this.paymentService.initiatePayment(userExist, {
+      noOfGallons: orderDto.noOfGallons,
+      orderId: order.id,
+      lodgeId: orderDto.lodgeId,
+      subaccount: selectedVendor?.subaccount,
+    });
+
     return {
-      data: order,
+      data: response,
       message: SYS_MSG.ORDER_PLACED_SUCCESSFULLY,
     };
   }
@@ -61,44 +89,23 @@ export class OrderService {
     });
   }
 
-  async updateOrderStatus(reference: string, status: boolean = true) {
-    const orderExist = await this.getOrderByReference(reference);
-
-    if (!orderExist) {
-      throw new NotFoundException(SYS_MSG.ORDER_NOT_FOUND);
-    }
-
-    await this.orderModelAction.update({
-      identifierOptions: { id: orderExist.id },
-      updatePayload: {
-        paymentStatus: status,
-      },
-      transactionOption: {
-        useTransaction: false,
-      },
+  async getOrderById(orderId: string) {
+    return this.orderModelAction.get({
+      getRecordIdentifierOption: { id: orderId },
+      relations: ['user', 'vendor'],
     });
-
-    const updatedOrder = await this.orderModelAction.get({
-      getRecordIdentifierOption: { id: orderExist.id },
-    });
-
-    if (updatedOrder?.paymentStatus !== status) {
-      throw new BadRequestException(SYS_MSG.ORDER_STATUS_NOT_UPDATED);
-    }
-
-    return {
-      data: updatedOrder,
-      message: SYS_MSG.ORDER_STATUS_UPDATED_SUCCESSFULLY,
-    };
   }
 
-  async getUserOrders(
-    id: string,
-    pagination: Pick<PaginationMeta, 'page' | 'limit'>,
-  ) {
+  async getUserOrders(id: string) {
     return this.orderModelAction.list({
-      queryOption: { userId: id, status: OrderStatus.PENDING },
-      pagination,
+      queryOption: {
+        userId: id,
+        status: Not(OrderStatus.COMPLETED),
+      },
+      pagination: {
+        limit: 5,
+        page: 1,
+      },
     });
   }
 
@@ -110,5 +117,46 @@ export class OrderService {
       queryOption: { vendorId: id, status: OrderStatus.PENDING },
       pagination,
     });
+  }
+
+  async assignVendorToOrder(orderId: string, vendorId: string) {
+    const response = await this.orderModelAction.update({
+      identifierOptions: {
+        id: orderId,
+      },
+      updatePayload: {
+        vendorId,
+        status: OrderStatus.ASSIGNED,
+      },
+      transactionOption: {
+        useTransaction: false,
+      },
+    });
+
+    return {
+      data: response,
+    };
+  }
+
+  async updateOrderStatus(orderId: string, status: OrderStatus) {
+    const order = await this.orderModelAction.get({
+      getRecordIdentifierOption: { id: orderId },
+    });
+
+    if (order?.status === status) {
+      return false;
+    }
+
+    await this.orderModelAction.update({
+      identifierOptions: { id: orderId },
+      updatePayload: {
+        status,
+      },
+      transactionOption: {
+        useTransaction: false,
+      },
+    });
+
+    return true;
   }
 }

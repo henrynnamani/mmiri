@@ -12,4 +12,6 @@ export const mockPlaceOrderDto = {
   noOfGallons: 4,
   totalAmount: 500,
   paymentReference: 'payment-ref-123',
+  roomNumber: 'Second floor, rm 3',
+  lodgeId: '38s0d-hdfk832-dh',
 };

@@ -8,13 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { VendorsService } from './vendors.service';
-import {
-  AddVendorServingLocations,
-  ChangeAvailabilityStatusDoc,
-  GetAllVendorsDoc,
-  getVendorOrdersDoc,
-} from './doc/vendors.doc';
-import { VendorGuard } from '@modules/auths/guards/vendor.guard';
+import { GetAllVendorsDoc, getVendorOrdersDoc } from './doc/vendors.doc';
 import { Role } from '@modules/common/enums';
 import { Roles } from '@modules/common/decorators/role.decorator';
 import { OrderService } from '@modules/order/order.service';
@@ -33,25 +27,14 @@ export class VendorsController {
     return this.vendorsService.getAllVendors();
   }
 
-  @Patch(':id')
-  @UseGuards(VendorGuard)
-  @ChangeAvailabilityStatusDoc()
-  changeAvailabilityStatus(@Param('id') vendorId: string) {
-    return this.vendorsService.changeAvailabilityStatus(vendorId);
-  }
-
-  @Post(':id/locations/:locationId')
-  @UseGuards(VendorGuard)
-  @AddVendorServingLocations()
-  addServingLocations(
-    @Param('id') vendorId: string,
-    @Param('locationId') locationId: string,
-  ) {
-    return this.vendorsService.addServingLocation(vendorId, locationId);
-  }
+  // @Patch(':chatId')
+  // @UseGuards(VendorGuard)
+  // @ChangeAvailabilityStatusDoc()
+  // changeAvailabilityStatus(@Param('id') vendorId: string) {
+  //   return this.vendorsService.changeAvailabilityStatus(vendorId);
+  // }
 
   @Get(':id/orders')
-  @UseGuards(VendorGuard)
   @getVendorOrdersDoc()
   async getVendorOrders(
     @Param('id') id: string,

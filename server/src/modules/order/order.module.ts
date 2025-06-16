@@ -12,6 +12,10 @@ import { LodgePriceModelAction } from '@modules/lodge_price/model/lodge_price.mo
 import { LodgesModule } from '@modules/lodges/lodges.module';
 import { LocationsModule } from '@modules/locations/locations.module';
 import { LodgePrice } from '@modules/lodge_price/model/lodge_price.model';
+import { TelegramModule } from '@modules/telegram/telegram.module';
+import { PaymentModule } from '@modules/payment/payment.module';
+import { OrderController } from './order.controller';
+import { OrderProcessor } from './order.processor';
 
 @Module({
   imports: [
@@ -19,7 +23,10 @@ import { LodgePrice } from '@modules/lodge_price/model/lodge_price.model';
     LodgesModule,
     LocationsModule,
     forwardRef(() => VendorsModule),
+    forwardRef(() => TelegramModule),
+    forwardRef(() => PaymentModule),
   ],
+  controllers: [OrderController],
   providers: [
     OrderService,
     OrderModelAction,
@@ -27,6 +34,7 @@ import { LodgePrice } from '@modules/lodge_price/model/lodge_price.model';
     UsersModelAction,
     LodgePriceService,
     LodgePriceModelAction,
+    OrderProcessor,
   ],
   exports: [OrderService, OrderModelAction],
 })

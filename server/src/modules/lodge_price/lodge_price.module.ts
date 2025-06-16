@@ -1,6 +1,5 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { LodgePriceService } from './lodge_price.service';
-import { LodgePriceController } from './lodge_price.controller';
 import { VendorsModule } from '@modules/vendors/vendors.module';
 import { LodgesModule } from '@modules/lodges/lodges.module';
 import { LodgePriceModelAction } from './model/lodge_price.model-action';
@@ -13,11 +12,10 @@ import { UniversitiesModule } from '@modules/universities/universities.module';
   imports: [
     TypeOrmModule.forFeature([LodgePrice]),
     LodgesModule,
-    VendorsModule,
+    forwardRef(() => VendorsModule),
     LocationsModule,
     UniversitiesModule,
   ],
-  controllers: [LodgePriceController],
   providers: [LodgePriceService, LodgePriceModelAction],
   exports: [LodgePriceService, LodgePriceModelAction],
 })

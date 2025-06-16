@@ -10,28 +10,23 @@ import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { LocationsService } from '@modules/locations/locations.service';
 import { VendorLocationsService } from '@modules/vendor_locations/vendor_locations.service';
-import { LoginDto, RegisterDto } from '@modules/auths/dto/auths.dto';
-import { hashPassword, verifyPassword } from '@modules/common/utils/auth';
 import * as SYS_MSG from '@modules/common/system-message';
 import { SERVICE_CHARGE } from '@modules/common/constants';
+import { VendorRegisterDto } from './dto/vendor.dto';
 
 @Injectable()
 export class VendorsService {
   constructor(
     private vendorModelAction: VendorModelAction,
-    private locationsService: LocationsService,
-    private vendorLocationService: VendorLocationsService,
     private config: ConfigService,
   ) {}
 
-  async registerVendor(registerDto: RegisterDto): Promise<Vendor> {
+  async registerVendor(registerDto: VendorRegisterDto): Promise<Vendor> {
     const vendorExist = await this.getVendorByEmail(registerDto.email);
 
     if (vendorExist) {
       throw new BadRequestException(SYS_MSG.VENDOR_ALREADY_EXIST);
     }
-
-    const hashedPassword = await hashPassword(registerDto.password);
 
     const subAccountCode = await this.createSubaccount(
       registerDto.businessName,
@@ -42,7 +37,6 @@ export class VendorsService {
     const payload = {
       ...registerDto,
       subaccount: subAccountCode?.data?.data?.subaccount_code,
-      password: hashedPassword,
     };
 
     await this.vendorModelAction.create({
@@ -63,34 +57,15 @@ export class VendorsService {
     return createdVendor;
   }
 
-  async verifyVendor(loginDto: LoginDto): Promise<Vendor> {
-    const vendorExist = await this.getVendorByEmail(loginDto.email);
-
-    if (!vendorExist) {
-      throw new NotFoundException(SYS_MSG.VENDOR_NOT_FOUND);
-    }
-
-    const isPasswordValid = await verifyPassword(
-      loginDto.password,
-      vendorExist.password,
-    );
-
-    if (!isPasswordValid) {
-      throw new BadRequestException(SYS_MSG.INVALID_VENDOR_CREDENTIALS);
-    }
-
-    return vendorExist;
-  }
-
   getVendorByEmail(email: string) {
     return this.vendorModelAction.get({
       getRecordIdentifierOption: { email },
     });
   }
 
-  getVendorById(id: string) {
+  getVendorByChatId(chatId: number) {
     return this.vendorModelAction.get({
-      getRecordIdentifierOption: { id },
+      getRecordIdentifierOption: { chatId },
     });
   }
 
@@ -106,61 +81,30 @@ export class VendorsService {
     });
   }
 
-  async changeAvailabilityStatus(vendorId: string) {
-    const vendorExist = await this.getVendorById(vendorId);
+  async changeAvailabilityStatus(chatId: number) {
+    const vendorExist = await this.getVendorByChatId(chatId);
 
     if (!vendorExist) {
       throw new NotFoundException(SYS_MSG.VENDOR_NOT_FOUND);
     }
 
     const payload = {
-      available: !vendorExist.available,
+      isActive: !vendorExist.isActive,
     };
 
     await this.vendorModelAction.update({
-      identifierOptions: { id: vendorId },
+      identifierOptions: { chatId },
       updatePayload: payload,
       transactionOption: {
         useTransaction: false,
       },
     });
 
-    const updatedVendor = await this.getVendorById(vendorId);
+    const updatedVendor = await this.getVendorByChatId(chatId);
 
     return {
       data: updatedVendor,
       message: SYS_MSG.VENDOR_AVAILABILITY_UPDATED,
-    };
-  }
-
-  async addServingLocation(vendorId: string, locationId: string) {
-    const vendorExist = await this.getVendorById(vendorId);
-
-    if (!vendorExist) {
-      throw new NotFoundException(SYS_MSG.VENDOR_NOT_FOUND);
-    }
-
-    const locationExist =
-      await this.locationsService.findLocationById(locationId);
-
-    if (!locationExist) {
-      throw new NotFoundException(SYS_MSG.LOCATION_NOT_FOUND);
-    }
-
-    const response = await this.vendorLocationService.addServingLocation(
-      vendorExist,
-      locationExist,
-    );
-
-    if (!response) {
-      throw new InternalServerErrorException(
-        SYS_MSG.VENDOR_FAILED_LOCATION_UPDATE,
-      );
-    }
-
-    return {
-      message: SYS_MSG.VENDOR_SERVING_LOCATION_UPDATED,
-      data: response,
     };
   }
 
