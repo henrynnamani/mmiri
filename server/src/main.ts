@@ -13,7 +13,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: (origin, callback) => {
-      const allowedOrigin = ['http://localhost:3000', 'http://localhost:3001'];
+      const allowedOrigin = ['https://mmiri.vercel.app',];
 
       if (!origin || allowedOrigin.includes(origin)) {
         callback(null, true);

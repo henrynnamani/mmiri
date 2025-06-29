@@ -56,9 +56,9 @@ const SelectLocation = () => {
 
   useEffect(() => {
     const getLodges = async () => {
-      const locationId = orderDetail?.location && orderDetail.location.id;
+      const locationId = orderDetail?.location && orderDetail?.location.id;
       const response = await api.get(`locations/${locationId}/lodges`);
-      setLodges(response.data.data.lodges);
+      setLodges(response.data?.data?.lodges);
     };
 
     if (orderDetail) {
