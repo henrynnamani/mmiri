@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { LodgeDto } from './dto/lodges.dto';
 import { LocationsService } from '@modules/locations/locations.service';
 import { LodgeModelAction } from './model/lodges.mode-action';
@@ -49,6 +53,7 @@ export class LodgesService {
   async getLodgeById(id: string) {
     return await this.lodgeModelAction.get({
       getRecordIdentifierOption: { id },
+      relations: ['location'],
     });
   }
 
@@ -60,11 +65,13 @@ export class LodgesService {
       relations: ['location'],
     });
 
-    if(!response) throw new BadRequestException(SYS_MSG.LODGE_NOT_FOUND);
+    if (!response) throw new BadRequestException(SYS_MSG.LODGE_NOT_FOUND);
 
-    const price = await this.locationService.getLocationPrice(response?.location.id);
+    const price = await this.locationService.getLocationPrice(
+      response?.location.id,
+    );
 
-    return price
+    return price;
   }
 
   // async getLodgePrices(lodgeId: string) {

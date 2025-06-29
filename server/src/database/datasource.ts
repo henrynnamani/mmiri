@@ -6,7 +6,7 @@ export const dataSource = new DataSource({
   port: 5437,
   username: 'graey',
   password: 'pyr@hornet0101',
-  database: 'mmiri',
+  database: 'new-app',
   entities: ['dist/modules/**/*.model.{ts,js}'],
   migrations: ['dist/database/migrations/*.{ts,js}'],
 });
