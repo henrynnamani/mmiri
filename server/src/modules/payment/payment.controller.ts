@@ -14,6 +14,7 @@ import { skipAuth } from '@modules/common/decorators/is-public.decorator';
 import { TelegramService } from '@modules/telegram/telegram.service';
 import { OrderService } from '@modules/order/order.service';
 import * as SYS_MSG from '@modules/common/system-message';
+import { LodgesService } from '@modules/lodges/lodges.service';
 
 @skipAuth()
 @Controller('webhook')
@@ -23,6 +24,7 @@ export class PaystackController {
     private paymentService: PaymentService,
     private telegramService: TelegramService,
     private orderService: OrderService,
+    private lodgeService: LodgesService,
   ) {}
   @Post()
   async handleWebhook(
@@ -44,15 +46,15 @@ export class PaystackController {
 
       if (body.event === 'charge.success') {
         const orderId: string = body.data.metadata?.orderId;
-        // const lodgeId: string = body.data.metadata?.lodgeId;
+        const lodgeId: string = body.data.metadata?.lodgeId;
 
         const response = await this.orderService.getOrderById(orderId);
+
+        const lodgeResponse = await this.lodgeService.getLodgeById(lodgeId);
 
         if (!response) {
           throw new NotFoundException(SYS_MSG.ORDER_NOT_FOUND);
         }
-
-        console.log('I truly hit');
 
         await this.paymentService.updatePaymentRecord(
           orderId,
@@ -63,6 +65,7 @@ export class PaystackController {
         await this.telegramService.notifyVendorOfOrder(
           Number(response?.vendor.chatId),
           response,
+          lodgeResponse!,
         );
       }
     }

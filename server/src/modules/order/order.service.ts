@@ -92,7 +92,7 @@ export class OrderService {
   async getOrderById(orderId: string) {
     return this.orderModelAction.get({
       getRecordIdentifierOption: { id: orderId },
-      relations: ['user', 'vendor'],
+      relations: ['user', 'vendor', 'user.lodge'],
     });
   }
 

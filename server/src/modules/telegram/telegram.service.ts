@@ -15,6 +15,7 @@ import * as SYS_MSG from '@modules/common/system-message';
 import { LodgePriceService } from '@modules/lodge_price/lodge_price.service';
 import { Order } from '@modules/order/model/order.model';
 import { OrderService } from '@modules/order/order.service';
+import { Lodge } from '@modules/lodges/model/lodges.model';
 
 @Injectable()
 export class TelegramService {
@@ -378,15 +379,14 @@ export class TelegramService {
     }
   }
 
-  public async notifyVendorOfOrder(chatId: number, order: Order) {
-    console.log('I got here');
+  public async notifyVendorOfOrder(chatId: number, order: Order, lodge: Lodge) {
     const message = `
     🛒 New Order Notification
     ----------------------------
     Phone Number: ${order.user?.phoneNumber}
+    Lodge: ${lodge.name}, ${lodge.location.name}
     Room: ${order.roomNumber}
     Number of Gallon: ${order.noOfGallons}
-    Delivery Address: ${order.roomNumber}
     ----------------------------
     Please update the order status:
     `;

@@ -1,0 +1,1 @@
+{"version":3,"file":"queue.config.js","sourceRoot":"","sources":["../../src/config/queue.config.ts"],"names":[],"mappings":";;;AAAO,MAAM,WAAW,GAAG,GAAG,EAAE,CAAC,CAAC;IAChC,KAAK,EAAE;QACL,IAAI,EAAE,OAAO,CAAC,GAAG,CAAC,UAAU;QAC5B,IAAI,EAAE,OAAO,CAAC,GAAG,CAAC,UAAU;KAC7B;CACF,CAAC,CAAC;AALU,QAAA,WAAW,eAKrB"}
