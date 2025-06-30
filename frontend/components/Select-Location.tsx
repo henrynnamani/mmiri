@@ -81,7 +81,7 @@ const SelectLocation = () => {
           <SelectValue placeholder="Pick location" />
         </SelectTrigger>
         <SelectContent>
-          {data?.data.payload.map((location: Location) => (
+          {data?.data?.payload?.map((location: Location) => (
             <SelectItem key={location.id} value={JSON.stringify(location)}>
               {location.name}
             </SelectItem>
